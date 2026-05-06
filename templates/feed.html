@@ -1,0 +1,1244 @@
+{% extends "base.html" %}
+{% block title %}Home | Block4{% endblock %}
+{% block content %}
+
+<div class="feed-layout">
+    
+    <!-- MAIN FEED -->
+    <div class="feed-main">
+        
+        <!-- Create Post Card -->
+        <div class="create-card">
+            <div class="create-header">
+                <div class="user-avatar small">{{ session.username[0].upper() }}</div>
+                <input type="text" id="postInput" placeholder="What's on your mind, {{ session.username }}?" onclick="openComposer()" readonly>
+            </div>
+            <div class="create-actions">
+                <button class="action-item" onclick="openComposer()">
+                    <i class="fa-solid fa-image" style="color: #10b981;"></i>
+                    <span>Photo</span>
+                </button>
+                <button class="action-item" onclick="openComposer()">
+                    <i class="fa-solid fa-video" style="color: #8b5cf6;"></i>
+                    <span>Video</span>
+                </button>
+                <button class="action-item" onclick="openPollModal()">
+                    <i class="fa-solid fa-chart-simple" style="color: #f59e0b;"></i>
+                    <span>Poll</span>
+                </button>
+                <button class="action-item" onclick="openComposer()">
+                    <i class="fa-solid fa-face-smile" style="color: #ec4899;"></i>
+                    <span>Feeling</span>
+                </button>
+            </div>
+        </div>
+        
+       <!-- Stories Row -->
+<div class="stories-row">
+    <div class="story-card create-story" onclick="openStoryCreator()">
+        <div class="story-add">
+            <i class="fa-solid fa-plus"></i>
+        </div>
+        <span>Add Story</span>
+    </div>
+    <input type="file" id="storyUpload" accept="image/*,video/*" style="display:none;" onchange="uploadStory(this)">
+    
+    {% for story in stories %}
+    <div class="story-card" onclick="viewStory({{ story.user_id }})">
+        {% if story.media_type == 'video' %}
+        <video src="{{ story.media_url }}" muted></video>
+        {% else %}
+        <img src="{{ story.media_url }}" alt="{{ story.username }}">
+        {% endif %}
+        <span>{{ story.username }}</span>
+    </div>
+    {% endfor %}
+</div>
+            
+            
+            {% if not stories %}
+            <div class="story-card">
+                <img src="https://picsum.photos/100/150?random=1" alt="">
+                <span>trader_x</span>
+            </div>
+            <div class="story-card">
+                <img src="https://picsum.photos/100/150?random=2" alt="">
+                <span>crypto_pro</span>
+            </div>
+            <div class="story-card">
+                <img src="https://picsum.photos/100/150?random=3" alt="">
+                <span>fx_master</span>
+            </div>
+            <div class="story-card">
+                <img src="https://picsum.photos/100/150?random=4" alt="">
+                <span>block4ai</span>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Feed Posts -->
+        <div class="posts-container">
+            {% for post in posts %}
+            <article class="post-card" id="post-{{ post.id }}">
+                <div class="post-header">
+                    <div class="post-author">
+                        <a href="{{ url_for('profile', username=post.username) }}" style="text-decoration:none;">
+                            <div class="author-avatar">{{ post.username[0].upper() }}</div>
+                        </a>
+                        <div class="author-info">
+                            <a href="{{ url_for('profile', username=post.username) }}" style="text-decoration:none; color:inherit;">
+                                <strong>{{ post.username }}</strong>
+                            </a>
+                            <span>@{{ post.username|lower }} · {{ post.time_ago }}</span>
+                        </div>
+                    </div>
+                    <button class="post-menu" onclick="togglePostMenu({{ post.id }})">
+                        <i class="fa-solid fa-ellipsis"></i>
+                    </button>
+                </div>
+                
+                <div class="post-content">
+                    {% if post.feeling %}
+                    <p class="feeling-tag">Feeling {{ post.feeling }}</p>
+                    {% endif %}
+                    
+                    {% if post.content %}
+                    <p>{{ post.content|linkify_hashtags|safe }}</p>
+                    {% endif %}
+                    
+                    {% if post.media_url %}
+                    <div class="post-media">
+                        {% if post.media_type == 'video' %}
+                        <video controls class="post-video">
+                            <source src="{{ post.media_url }}">
+                        </video>
+                        {% else %}
+                        <img src="{{ post.media_url }}" alt="Post media" class="post-image">
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="post-footer">
+                    <div class="post-stats">
+                        <span id="like-count-{{ post.id }}"><strong>{{ post.like_count }}</strong> likes</span>
+                        <span class="comment-toggle" onclick="toggleComments({{ post.id }})">
+                            <strong>{{ post.comment_count }}</strong> comments
+                        </span>
+                    </div>
+                    <div class="post-actions">
+                        <button class="action-btn {% if post.user_liked %}liked{% endif %}" 
+                                onclick="likePost({{ post.id }}, this)" 
+                                id="like-btn-{{ post.id }}">
+                            <i class="fa-{% if post.user_liked %}solid{% else %}regular{% endif %} fa-heart"
+                               {% if post.user_liked %}style="color: #ef4444;"{% endif %}></i>
+                        </button>
+                        <button class="action-btn" onclick="toggleComments({{ post.id }})">
+                            <i class="fa-regular fa-comment"></i>
+                        </button>
+                        <button class="action-btn" onclick="sharePost({{ post.id }})">
+                            <i class="fa-regular fa-paper-plane"></i>
+                        </button>
+                        <button class="action-btn save" onclick="savePost({{ post.id }}, this)">
+                            <i class="fa-regular fa-bookmark"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Comments Section -->
+                <div class="comments-section" id="comments-{{ post.id }}" style="display:none;">
+                    <div class="comments-list" id="comments-list-{{ post.id }}"></div>
+                    <div class="comment-input-wrapper">
+                        <input type="text" 
+                               class="comment-input" 
+                               id="comment-input-{{ post.id }}" 
+                               placeholder="Write a comment..."
+                               onkeypress="if(event.key === 'Enter') submitComment({{ post.id }})">
+                        <button class="comment-submit" onclick="submitComment({{ post.id }})">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </article>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fa-solid fa-seedling"></i>
+                </div>
+                <h3>No posts yet</h3>
+                <p>Be the first to share something with the community!</p>
+                <button class="btn-primary" onclick="openComposer()">
+                    Create Post
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+   <!-- RIGHT SIDEBAR -->
+<aside class="feed-sidebar">
+    <!-- Trending Topics - Real Data Only -->
+    <div class="sidebar-card">
+        <h3>🔥 Trending Topics</h3>
+        <div class="trending-list">
+            {% if trending %}
+                {% for tag, count in trending %}
+                <a href="{{ url_for('hashtag', tag=tag) }}" class="trending-item">
+                    <span class="trend-rank">{{ loop.index }}</span>
+                    <div class="trend-info">
+                        <strong>#{{ tag }}</strong>
+                        <span>{{ count }} post{% if count != 1 %}s{% endif %}</span>
+                    </div>
+                </a>
+                {% endfor %}
+            {% else %}
+            <div class="empty-sidebar">
+                <i class="fa-solid fa-fire" style="font-size:24px; color:var(--text-muted); margin-bottom:8px;"></i>
+                <p>No trending topics yet</p>
+                <span>Start posting with #hashtags!</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Suggested Users - Real Data Only -->
+    <div class="sidebar-card">
+        <h3>✨ Suggested for You</h3>
+        <div class="suggested-list">
+            {% if suggested %}
+                {% for user in suggested %}
+                <div class="suggested-user">
+                    <a href="{{ url_for('profile', username=user.username) }}" style="text-decoration:none;">
+                        {% if user.avatar %}
+                        <img src="{{ user.avatar }}" class="user-avatar small" style="border-radius:50%; object-fit:cover;">
+                        {% else %}
+                        <div class="user-avatar small">{{ user.username[0].upper() }}</div>
+                        {% endif %}
+                    </a>
+                    <div class="user-info">
+                        <a href="{{ url_for('profile', username=user.username) }}" style="text-decoration:none; color:inherit;">
+                            <strong>{{ user.username }}</strong>
+                        </a>
+                        <span>{{ user.bio[:30] if user.bio else 'New member' }}</span>
+                    </div>
+                    <button class="btn-follow" onclick="followUser({{ user.id }}, this)">Follow</button>
+                </div>
+                {% endfor %}
+            {% else %}
+            <div class="empty-sidebar">
+                <i class="fa-solid fa-users" style="font-size:24px; color:var(--text-muted); margin-bottom:8px;"></i>
+                <p>No suggestions yet</p>
+                <span>Invite friends to join!</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Real Footer Links -->
+    <div class="sidebar-footer">
+        <a href="{{ url_for('about_page') }}">About</a>
+        <a href="{{ url_for('help_page') }}">Help</a>
+        <a href="{{ url_for('privacy_page') }}">Privacy</a>
+        <a href="{{ url_for('terms_page') }}">Terms</a>
+        <p>© 2026 Block4. All rights reserved.</p>
+    </div>
+</aside>
+<!-- POST COMPOSER MODAL -->
+<div class="modal-overlay" id="composerModal" onclick="closeComposer(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h3>Create Post</h3>
+            <button class="close-btn" onclick="closeComposer()">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="composer-user">
+                <div class="user-avatar">{{ session.username[0].upper() }}</div>
+                <div>
+                    <strong>{{ session.username }}</strong>
+                    <select class="visibility-select" id="postVisibility">
+                        <option>🌍 Public</option>
+                        <option>👥 Followers</option>
+                        <option>🔒 Only Me</option>
+                    </select>
+                </div>
+            </div>
+            <textarea id="composerText" placeholder="What's happening?"></textarea>
+            
+            <div id="mediaPreview" style="display:none;">
+                <img id="previewImage" src="" style="max-width:100%; border-radius:12px; margin-top:10px;">
+                <button onclick="removeMedia()" style="background:var(--error); color:white; border:none; padding:6px 12px; border-radius:8px; margin-top:8px; cursor:pointer;">
+                    <i class="fa-solid fa-trash"></i> Remove
+                </button>
+            </div>
+            
+            <div class="composer-tools">
+                <button onclick="document.getElementById('postMedia').click()">
+                    <i class="fa-solid fa-image"></i>
+                </button>
+                <button onclick="document.getElementById('postMedia').click()">
+                    <i class="fa-solid fa-video"></i>
+                </button>
+                <button><i class="fa-solid fa-location-dot"></i></button>
+                <button onclick="openComposerEmoji()"><i class="fa-solid fa-face-smile"></i></button>
+                <button><i class="fa-solid fa-hashtag"></i></button>
+            </div>
+            <input type="file" id="postMedia" accept="image/*,video/*" style="display:none;" onchange="previewMedia(this)">
+        </div>
+        <div class="modal-footer">
+            <span class="char-count" id="charCount">0/500</span>
+            <button class="btn-primary" onclick="submitPost()">Post</button>
+        </div>
+    </div>
+</div>
+
+<!-- POLL MODAL -->
+<div class="modal-overlay" id="pollModal" onclick="closePollModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h3>Create Poll</h3>
+            <button class="close-btn" onclick="closePollModal()">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <input type="text" id="pollQuestion" placeholder="Ask a question..." 
+                   style="width:100%; padding:14px; background:var(--bg-elevated); border:1px solid var(--border); border-radius:var(--radius-md); color:var(--text-primary); font-size:16px; outline:none; margin-bottom:16px;">
+            
+            <div id="pollOptions">
+                <input type="text" class="poll-option" placeholder="Option 1" 
+                       style="width:100%; padding:12px; background:var(--bg-elevated); border:1px solid var(--border); border-radius:var(--radius-md); color:var(--text-primary); font-size:14px; outline:none; margin-bottom:8px;">
+                <input type="text" class="poll-option" placeholder="Option 2" 
+                       style="width:100%; padding:12px; background:var(--bg-elevated); border:1px solid var(--border); border-radius:var(--radius-md); color:var(--text-primary); font-size:14px; outline:none; margin-bottom:8px;">
+            </div>
+            
+            <button onclick="addPollOption()" 
+                    style="background:none; border:1px dashed var(--border); color:var(--gold); padding:10px; width:100%; border-radius:var(--radius-md); cursor:pointer; margin-top:8px;">
+                <i class="fa-solid fa-plus"></i> Add Option
+            </button>
+        </div>
+        <div class="modal-footer">
+            <span></span>
+            <button class="btn-primary" onclick="submitPoll()">Create Poll</button>
+        </div>
+    </div>
+</div>
+
+<!-- STORY VIEWER MODAL -->
+<div class="modal-overlay" id="storyModal" onclick="closeStoryModal()">
+    <div class="story-viewer" onclick="event.stopPropagation()">
+        <button class="close-btn" onclick="closeStoryModal()" style="position:absolute; top:10px; right:10px; z-index:10;">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+        <div id="storyContent" style="width:100%; height:100%; display:grid; place-items:center;"></div>
+    </div>
+</div>
+
+<!-- ALL JAVASCRIPT -->
+<script>
+<!-- POST COMPOSER MODAL -->
+<div class="modal-overlay" id="composerModal" onclick="closeComposer(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h3>Create Post</h3>
+            <button class="close-btn" onclick="closeComposer()">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="composer-user">
+                <div class="user-avatar">{{ session.username[0].upper() }}</div>
+                <div>
+                    <strong>{{ session.username }}</strong>
+                    <select class="visibility-select" id="postVisibility">
+                        <option>🌍 Public</option>
+                        <option>👥 Followers</option>
+                        <option>🔒 Only Me</option>
+                    </select>
+                </div>
+            </div>
+            <textarea id="composerText" placeholder="What's happening?"></textarea>
+            
+            <!-- Media Preview with Filter -->
+            <div id="mediaPreview" style="display:none;">
+                <img id="previewImage" src="" class="filter-none" style="max-width:100%; border-radius:12px; margin-top:10px;">
+                
+                <!-- Filter Tabs -->
+                <div class="filter-tabs" style="margin-top:12px;">
+                    <button class="filter-tab active" onclick="showFilterTab('filters', this)">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Filters
+                    </button>
+                    <button class="filter-tab" onclick="showFilterTab('adjust', this)">
+                        <i class="fa-solid fa-sliders"></i> Adjust
+                    </button>
+                </div>
+                
+                <!-- Filters -->
+                <div class="filter-section active" id="filtersPanel">
+                    <div class="filter-scroll">
+                        <div class="filter-item active" onclick="applyFilter('none', this)">
+                            <div class="filter-preview">
+                                <img id="filterThumb0" src="" class="filter-none">
+                            </div>
+                            <span class="filter-name">Normal</span>
+                        </div>
+                        <div class="filter-item" onclick="applyFilter('warm', this)">
+                            <div class="filter-preview">
+                                <img id="filterThumb1" src="" class="filter-warm">
+                            </div>
+                            <span class="filter-name">Warm</span>
+                        </div>
+                        <div class="filter-item" onclick="applyFilter('cold', this)">
+                            <div class="filter-preview">
+                                <img id="filterThumb2" src="" class="filter-cold">
+                            </div>
+                            <span class="filter-name">Cold</span>
+                        </div>
+                        <div class="filter-item" onclick="applyFilter('vintage', this)">
+                            <div class="filter-preview">
+                                <img id="filterThumb3" src="" class="filter-vintage">
+                            </div>
+                            <span class="filter-name">Vintage</span>
+                        </div>
+                        <div class="filter-item" onclick="applyFilter('dramatic', this)">
+                            <div class="filter-preview">
+                                <img id="filterThumb4" src="" class="filter-dramatic">
+                            </div>
+                            <span class="filter-name">Dramatic</span>
+                        </div>
+                        <div class="filter-item" onclick="applyFilter('fade', this)">
+                            <div class="filter-preview">
+                                <img id="filterThumb5" src="" class="filter-fade">
+                            </div>
+                            <span class="filter-name">Fade</span>
+                        </div>
+                        <div class="filter-item" onclick="applyFilter('noir', this)">
+                            <div class="filter-preview">
+                                <img id="filterThumb6" src="" class="filter-noir">
+                            </div>
+                            <span class="filter-name">Noir</span>
+                        </div>
+                        <div class="filter-item" onclick="applyFilter('golden', this)">
+                            <div class="filter-preview">
+                                <img id="filterThumb7" src="" class="filter-golden">
+                            </div>
+                            <span class="filter-name">Golden</span>
+                        </div>
+                        <div class="filter-item" onclick="applyFilter('ocean', this)">
+                            <div class="filter-preview">
+                                <img id="filterThumb8" src="" class="filter-ocean">
+                            </div>
+                            <span class="filter-name">Ocean</span>
+                        </div>
+                        <div class="filter-item" onclick="applyFilter('sunset', this)">
+                            <div class="filter-preview">
+                                <img id="filterThumb9" src="" class="filter-sunset">
+                            </div>
+                            <span class="filter-name">Sunset</span>
+                        </div>
+                        <div class="filter-item" onclick="applyFilter('sharp', this)">
+                            <div class="filter-preview">
+                                <img id="filterThumb10" src="" class="filter-sharp">
+                            </div>
+                            <span class="filter-name">Sharp</span>
+                        </div>
+                        <div class="filter-item" onclick="applyFilter('dreamy', this)">
+                            <div class="filter-preview">
+                                <img id="filterThumb11" src="" class="filter-dreamy">
+                            </div>
+                            <span class="filter-name">Dreamy</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Adjust -->
+                <div class="adjust-section" id="adjustPanel">
+                    <div class="adjust-item">
+                        <span class="adjust-label">Brightness</span>
+                        <input type="range" class="adjust-slider" id="brightnessSlider" min="50" max="150" value="100" oninput="adjustImage()">
+                        <span class="adjust-value" id="brightnessValue">100</span>
+                    </div>
+                    <div class="adjust-item">
+                        <span class="adjust-label">Contrast</span>
+                        <input type="range" class="adjust-slider" id="contrastSlider" min="50" max="150" value="100" oninput="adjustImage()">
+                        <span class="adjust-value" id="contrastValue">100</span>
+                    </div>
+                    <div class="adjust-item">
+                        <span class="adjust-label">Saturation</span>
+                        <input type="range" class="adjust-slider" id="saturationSlider" min="0" max="200" value="100" oninput="adjustImage()">
+                        <span class="adjust-value" id="saturationValue">100</span>
+                    </div>
+                    <div class="adjust-item">
+                        <span class="adjust-label">Blur</span>
+                        <input type="range" class="adjust-slider" id="blurSlider" min="0" max="10" value="0" step="0.5" oninput="adjustImage()">
+                        <span class="adjust-value" id="blurValue">0</span>
+                    </div>
+                    <div class="adjust-item">
+                        <span class="adjust-label">Sepia</span>
+                        <input type="range" class="adjust-slider" id="sepiaSlider" min="0" max="100" value="0" oninput="adjustImage()">
+                        <span class="adjust-value" id="sepiaValue">0</span>
+                    </div>
+                    <button onclick="resetAdjust()" style="background:none; border:1px solid var(--border); color:var(--text-secondary); padding:8px 16px; border-radius:var(--radius-full); cursor:pointer; font-size:13px; margin-top:8px;">
+                        <i class="fa-solid fa-rotate-left"></i> Reset
+                    </button>
+                </div>
+                
+                <button onclick="removeMedia()" style="background:var(--error); color:white; border:none; padding:8px 16px; border-radius:8px; margin-top:12px; cursor:pointer; font-size:13px;">
+                    <i class="fa-solid fa-trash"></i> Remove
+                </button>
+            </div>
+            
+            <div class="composer-tools">
+                <button onclick="document.getElementById('postMedia').click()">
+                    <i class="fa-solid fa-image"></i>
+                </button>
+                <button onclick="document.getElementById('postMedia').click()">
+                    <i class="fa-solid fa-video"></i>
+                </button>
+                <button><i class="fa-solid fa-location-dot"></i></button>
+                <button><i class="fa-solid fa-face-smile"></i></button>
+                <button><i class="fa-solid fa-hashtag"></i></button>
+            </div>
+            <input type="file" id="postMedia" accept="image/*,video/*" style="display:none;" onchange="previewMedia(this)">
+        </div>
+        <div class="modal-footer">
+            <span class="char-count" id="charCount">0/500</span>
+            <button class="btn-primary" onclick="submitPost()">Post</button>
+        </div>
+    </div>
+</div>
+
+// ================================
+// LIKES
+// ================================
+function likePost(postId, btn) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/post/' + postId + '/like', true);
+    
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            var data = JSON.parse(xhr.responseText);
+            var icon = btn.querySelector('i');
+            var countEl = document.getElementById('like-count-' + postId);
+            
+            if (data.status === 'liked') {
+                icon.className = 'fa-solid fa-heart';
+                icon.style.color = '#ef4444';
+                btn.classList.add('liked');
+                btn.style.transform = 'scale(1.3)';
+                setTimeout(function() { btn.style.transform = 'scale(1)'; }, 200);
+            } else {
+                icon.className = 'fa-regular fa-heart';
+                icon.style.color = '';
+                btn.classList.remove('liked');
+            }
+            
+            countEl.innerHTML = '<strong>' + data.count + '</strong> likes';
+        }
+    };
+    
+    xhr.send();
+}
+
+// ================================
+// COMMENTS
+// ================================
+function toggleComments(postId) {
+    var section = document.getElementById('comments-' + postId);
+    
+    if (section.style.display === 'none' || section.style.display === '') {
+        section.style.display = 'block';
+        loadComments(postId);
+        setTimeout(function() {
+            document.getElementById('comment-input-' + postId).focus();
+        }, 100);
+    } else {
+        section.style.display = 'none';
+    }
+}
+
+function loadComments(postId) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/api/post/' + postId + '/comments', true);
+    
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            var comments = JSON.parse(xhr.responseText);
+            var list = document.getElementById('comments-list-' + postId);
+            
+            if (comments.length === 0) {
+                list.innerHTML = '<p style="color:var(--text-muted); padding:10px; font-size:14px;">No comments yet. Be the first!</p>';
+                return;
+            }
+            
+            var html = '';
+            for (var i = 0; i < comments.length; i++) {
+                var c = comments[i];
+                html += '<div class="comment-item">';
+                html += '<div class="user-avatar small">' + c.username[0].toUpperCase() + '</div>';
+                html += '<div class="comment-body">';
+                html += '<strong>' + c.username + '</strong>';
+                html += '<p>' + c.content + '</p>';
+                html += '</div></div>';
+            }
+            
+            list.innerHTML = html;
+        }
+    };
+    
+    xhr.send();
+}
+
+function submitComment(postId) {
+    var input = document.getElementById('comment-input-' + postId);
+    var content = input.value.trim();
+    if (!content) return;
+    
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/post/' + postId + '/comment', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            input.value = '';
+            loadComments(postId);
+        } else {
+            alert('Failed to post comment');
+        }
+    };
+    
+    xhr.send(JSON.stringify({ content: content }));
+}
+
+// ================================
+// FOLLOW
+// ================================
+function followUser(userId, btn) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/follow/' + userId, true);
+    
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            var data = JSON.parse(xhr.responseText);
+            
+            if (data.status === 'followed') {
+                btn.textContent = 'Following';
+                btn.style.background = 'var(--gold)';
+                btn.style.color = 'black';
+                btn.style.borderColor = 'var(--gold)';
+            } else {
+                btn.textContent = 'Follow';
+                btn.style.background = 'transparent';
+                btn.style.color = 'var(--gold)';
+                btn.style.borderColor = 'var(--gold)';
+            }
+        }
+    };
+    
+    xhr.send();
+}
+
+// ================================
+// POLLS
+// ================================
+function openPollModal() {
+    document.getElementById('pollModal').classList.add('active');
+}
+
+function closePollModal(e) {
+    if (e && e.target !== e.currentTarget) return;
+    document.getElementById('pollModal').classList.remove('active');
+}
+
+function addPollOption() {
+    var container = document.getElementById('pollOptions');
+    var count = container.querySelectorAll('.poll-option').length + 1;
+    if (count > 6) return;
+    
+    var input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'poll-option';
+    input.placeholder = 'Option ' + count;
+    input.style = 'width:100%; padding:12px; background:var(--bg-elevated); border:1px solid var(--border); border-radius:var(--radius-md); color:var(--text-primary); font-size:14px; outline:none; margin-bottom:8px;';
+    container.appendChild(input);
+}
+
+function submitPoll() {
+    var question = document.getElementById('pollQuestion').value.trim();
+    var optionInputs = document.querySelectorAll('.poll-option');
+    var options = [];
+    
+    for (var i = 0; i < optionInputs.length; i++) {
+        if (optionInputs[i].value.trim()) {
+            options.push(optionInputs[i].value.trim());
+        }
+    }
+    
+    if (!question || options.length < 2) {
+        alert('Need a question and at least 2 options');
+        return;
+    }
+    
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/poll', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            closePollModal();
+            window.location.reload();
+        } else {
+            alert('Failed to create poll');
+        }
+    };
+    
+    xhr.send(JSON.stringify({ question: question, options: options }));
+}
+
+// ================================
+// STORIES
+// ================================
+function uploadStory(input) {
+    if (!input.files || !input.files[0]) return;
+    
+    var fd = new FormData();
+    fd.append('media', input.files[0]);
+    
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/story', true);
+    
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            alert('Story uploaded!');
+            window.location.reload();
+        } else {
+            alert('Failed to upload story');
+        }
+    };
+    
+    xhr.onerror = function() {
+        alert('Network error');
+    };
+    
+    xhr.send(fd);
+}
+
+function viewStory(userId) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/api/stories/' + userId, true);
+    
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            var stories = JSON.parse(xhr.responseText);
+            
+            if (stories.length === 0) {
+                alert('No stories available');
+                return;
+            }
+            
+            var story = stories[0];
+            var content = document.getElementById('storyContent');
+            
+            if (story.media_type === 'video') {
+                content.innerHTML = '<video src="' + story.media_url + '" controls autoplay style="max-width:100%; max-height:80vh; border-radius:16px;"></video>';
+            } else {
+                content.innerHTML = '<img src="' + story.media_url + '" style="max-width:100%; max-height:80vh; border-radius:16px;">';
+            }
+            
+            document.getElementById('storyModal').classList.add('active');
+        }
+    };
+    
+    xhr.send();
+}
+
+function closeStoryModal() {
+    document.getElementById('storyModal').classList.remove('active');
+    document.getElementById('storyContent').innerHTML = '';
+}
+
+// ================================
+// SHARE AND SAVE
+// ================================
+function sharePost(postId) {
+    var url = window.location.origin + '/feed#post-' + postId;
+    
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(function() {
+            alert('Link copied!');
+        });
+    } else {
+        prompt('Copy this link:', url);
+    }
+}
+
+function savePost(postId, btn) {
+    var icon = btn.querySelector('i');
+    btn.classList.toggle('saved');
+    
+    if (btn.classList.contains('saved')) {
+        icon.className = 'fa-solid fa-bookmark';
+        icon.style.color = 'var(--gold)';
+    } else {
+        icon.className = 'fa-regular fa-bookmark';
+        icon.style.color = '';
+    }
+}
+
+function togglePostMenu(postId) {
+    console.log('Menu for post:', postId);
+}
+// ================================
+// IMAGE FILTERS
+// ================================
+var currentFilter = 'none';
+
+function previewMedia(input) {
+    if (input.files && input.files[0]) {
+        selectedMedia = input.files[0];
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var img = document.getElementById('previewImage');
+            img.src = e.target.result;
+            document.getElementById('mediaPreview').style.display = 'block';
+            
+            // Set all filter thumbnails
+            for (var i = 0; i < 12; i++) {
+                var thumb = document.getElementById('filterThumb' + i);
+                if (thumb) {
+                    thumb.src = e.target.result;
+                }
+            }
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function applyFilter(filterName, el) {
+    var items = document.querySelectorAll('.filter-item');
+    for (var i = 0; i < items.length; i++) {
+        items[i].classList.remove('active');
+    }
+    el.classList.add('active');
+    
+    var img = document.getElementById('previewImage');
+    img.className = 'filter-' + filterName;
+    img.style.filter = '';
+    currentFilter = filterName;
+    
+    // Reset adjust sliders
+    resetAdjust();
+}
+
+function showFilterTab(tab, btn) {
+    var tabs = document.querySelectorAll('.filter-tab');
+    for (var i = 0; i < tabs.length; i++) {
+        tabs[i].classList.remove('active');
+    }
+    btn.classList.add('active');
+    
+    document.getElementById('filtersPanel').classList.remove('active');
+    document.getElementById('adjustPanel').classList.remove('active');
+    
+    if (tab === 'filters') {
+        document.getElementById('filtersPanel').classList.add('active');
+    } else {
+        document.getElementById('adjustPanel').classList.add('active');
+    }
+}
+
+function adjustImage() {
+    var brightness = document.getElementById('brightnessSlider').value;
+    var contrast = document.getElementById('contrastSlider').value;
+    var saturation = document.getElementById('saturationSlider').value;
+    var blur = document.getElementById('blurSlider').value;
+    var sepia = document.getElementById('sepiaSlider').value;
+    
+    document.getElementById('brightnessValue').textContent = brightness;
+    document.getElementById('contrastValue').textContent = contrast;
+    document.getElementById('saturationValue').textContent = saturation;
+    document.getElementById('blurValue').textContent = blur;
+    document.getElementById('sepiaValue').textContent = sepia;
+    
+    var img = document.getElementById('previewImage');
+    img.className = '';
+    img.style.filter = 'brightness(' + (brightness/100) + ') contrast(' + (contrast/100) + ') saturate(' + (saturation/100) + ') blur(' + blur + 'px) sepia(' + (sepia/100) + ')';
+    img.style.maxWidth = '100%';
+    img.style.borderRadius = '12px';
+    img.style.marginTop = '10px';
+}
+
+function resetAdjust() {
+    document.getElementById('brightnessSlider').value = 100;
+    document.getElementById('contrastSlider').value = 100;
+    document.getElementById('saturationSlider').value = 100;
+    document.getElementById('blurSlider').value = 0;
+    document.getElementById('sepiaSlider').value = 0;
+    
+    document.getElementById('brightnessValue').textContent = '100';
+    document.getElementById('contrastValue').textContent = '100';
+    document.getElementById('saturationValue').textContent = '100';
+    document.getElementById('blurValue').textContent = '0';
+    document.getElementById('sepiaValue').textContent = '0';
+}
+
+<!-- EMOJI PICKER -->
+<div class="emoji-picker-overlay" id="emojiPicker" onclick="closeEmojiPicker(event)">
+    <div class="emoji-picker" onclick="event.stopPropagation()">
+        <div class="emoji-picker-header">
+            <h3>Emojis</h3>
+            <button class="close-btn" onclick="closeEmojiPicker()">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div class="emoji-search">
+            <input type="text" id="emojiSearch" placeholder="Search emojis..." oninput="filterEmojis(this.value)">
+        </div>
+        <div class="emoji-categories">
+            <button class="emoji-cat-btn active" onclick="showEmojiCategory('smileys', this)">😀</button>
+            <button class="emoji-cat-btn" onclick="showEmojiCategory('people', this)">👋</button>
+            <button class="emoji-cat-btn" onclick="showEmojiCategory('animals', this)">🐶</button>
+            <button class="emoji-cat-btn" onclick="showEmojiCategory('food', this)">🍕</button>
+            <button class="emoji-cat-btn" onclick="showEmojiCategory('travel', this)">✈️</button>
+            <button class="emoji-cat-btn" onclick="showEmojiCategory('activities', this)">⚽</button>
+            <button class="emoji-cat-btn" onclick="showEmojiCategory('objects', this)">💡</button>
+            <button class="emoji-cat-btn" onclick="showEmojiCategory('symbols', this)">❤️</button>
+            <button class="emoji-cat-btn" onclick="showEmojiCategory('flags', this)">🏁</button>
+        </div>
+        <div class="emoji-grid" id="emojiGrid">
+            <!-- Emojis load here -->
+        </div>
+    </div>
+</div>
+
+<!-- STORY CREATOR -->
+<div class="story-creator-overlay" id="storyCreator" onclick="closeStoryCreator(event)">
+    <div class="story-creator" onclick="event.stopPropagation()">
+        <div class="story-creator-header">
+            <h3>Create Story</h3>
+            <button class="story-close-btn" onclick="closeStoryCreator()">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        
+        <div class="story-preview-area" id="storyPreviewArea">
+            <div class="story-preview-placeholder" id="storyPlaceholder">
+                <i class="fa-solid fa-camera-retro"></i>
+                <p>Take a photo or choose from gallery</p>
+                <div class="story-source-buttons">
+                    <div class="story-source-btn" onclick="openCamera()">
+                        <i class="fa-solid fa-camera"></i>
+                        <span>Camera</span>
+                    </div>
+                    <div class="story-source-btn" onclick="document.getElementById('storyFileInput').click()">
+                        <i class="fa-solid fa-images"></i>
+                        <span>Gallery</span>
+                    </div>
+                </div>
+            </div>
+            <img id="storyPreviewImg" src="" style="display:none;">
+            <video id="storyCameraView" class="camera-view" autoplay playsinline style="display:none;"></video>
+            <canvas id="storyCaptureCanvas" style="display:none;"></canvas>
+        </div>
+        
+        <div class="story-bottom-controls" id="storyControls">
+            <div class="story-tools">
+                <button class="story-tool-btn" onclick="document.getElementById('storyFileInput').click()">
+                    <i class="fa-solid fa-images"></i>
+                </button>
+                <button class="story-tool-btn" onclick="openCamera()">
+                    <i class="fa-solid fa-camera"></i>
+                </button>
+                <button class="story-tool-btn" onclick="openStoryEmojiPicker()">
+                    <i class="fa-solid fa-face-smile"></i>
+                </button>
+                <button class="story-tool-btn" onclick="addStoryText()">
+                    <i class="fa-solid fa-font"></i>
+                </button>
+            </div>
+            
+            <div class="story-filter-bar">
+                <div class="story-filter-chip active" onclick="applyStoryFilter('none', this)">Normal</div>
+                <div class="story-filter-chip" onclick="applyStoryFilter('warm', this)">Warm</div>
+                <div class="story-filter-chip" onclick="applyStoryFilter('cold', this)">Cold</div>
+                <div class="story-filter-chip" onclick="applyStoryFilter('vintage', this)">Vintage</div>
+                <div class="story-filter-chip" onclick="applyStoryFilter('noir', this)">B&W</div>
+                <div class="story-filter-chip" onclick="applyStoryFilter('dramatic', this)">Drama</div>
+                <div class="story-filter-chip" onclick="applyStoryFilter('golden', this)">Golden</div>
+                <div class="story-filter-chip" onclick="applyStoryFilter('sunset', this)">Sunset</div>
+            </div>
+            
+            <div class="story-post-bar">
+                <input type="text" id="storyCaptionInput" placeholder="Add a caption...">
+                <button class="story-post-btn" onclick="postStory()">Share</button>
+            </div>
+        </div>
+        
+        <div class="camera-controls" id="cameraControls" style="display:none;">
+            <button class="camera-switch-btn" onclick="switchCamera()">
+                <i class="fa-solid fa-rotate"></i>
+            </button>
+            <button class="camera-capture-btn" onclick="capturePhoto()"></button>
+            <button class="camera-switch-btn" onclick="closeCameraView()">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+    </div>
+    <input type="file" id="storyFileInput" accept="image/*,video/*" style="display:none;" onchange="previewStoryFile(this)">
+</div>
+
+// ================================
+// FULL EMOJI PICKER
+// ================================
+var emojiTarget = null;
+
+var emojiData = {
+    smileys: ['😀','😃','😄','😁','😆','😅','🤣','😂','🙂','🙃','😉','😊','😇','🥰','😍','🤩','😘','😗','😚','😙','🥲','😋','😛','😜','🤪','😝','🤑','🤗','🤭','🤫','🤔','🫡','🤐','🤨','😐','😑','😶','🫥','😏','😒','🙄','😬','🤥','😌','😔','😪','🤤','😴','😷','🤒','🤕','🤢','🤮','🥵','🥶','🥴','😵','🤯','🤠','🥳','🥸','😎','🤓','🧐','😕','🫤','😟','🙁','😮','😯','😲','😳','🥺','🥹','😦','😧','😨','😰','😥','😢','😭','😱','😖','😣','😞','😓','😩','😫','🥱','😤','😡','😠','🤬','😈','👿','💀','☠️','💩','🤡','👹','👺','👻','👽','👾','🤖'],
+    people: ['👋','🤚','🖐️','✋','🖖','🫱','🫲','🫳','🫴','👌','🤌','🤏','✌️','🤞','🫰','🤟','🤘','🤙','👈','👉','👆','🖕','👇','☝️','🫵','👍','👎','✊','👊','🤛','🤜','👏','🙌','🫶','👐','🤲','🤝','🙏','✍️','💅','🤳','💪','🦾','🦿','🦵','🦶','👂','🦻','👃','🧠','🫀','🫁','🦷','🦴','👀','👁️','👅','👄','🫦','👶','🧒','👦','👧','🧑','👱','👨','🧔','👩','🧓','👴','👵'],
+    animals: ['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐻‍❄️','🐨','🐯','🦁','🐮','🐷','🐽','🐸','🐵','🙈','🙉','🙊','🐒','🐔','🐧','🐦','🐤','🐣','🐥','🦆','🦅','🦉','🦇','🐺','🐗','🐴','🦄','🐝','🪱','🐛','🦋','🐌','🐞','🐜','🪰','🪲','🪳','🦟','🦗','🕷️','🕸️','🦂','🐢','🐍','🦎','🦖','🦕','🐙','🦑','🦐','🦞','🦀','🐡','🐠','🐟','🐬','🐳','🐋','🦈','🐊','🐅','🐆','🦓','🦍','🦧','🐘','🦛','🦏','🐪','🐫','🦒'],
+    food: ['🍏','🍎','🍐','🍊','🍋','🍌','🍉','🍇','🍓','🫐','🍈','🍒','🍑','🥭','🍍','🥥','🥝','🍅','🍆','🥑','🥦','🥬','🥒','🌶️','🫑','🌽','🥕','🫒','🧄','🧅','🥔','🍠','🥐','🥯','🍞','🥖','🥨','🧀','🥚','🍳','🧈','🥞','🧇','🥓','🥩','🍗','🍖','🦴','🌭','🍔','🍟','🍕','🫓','🥪','🥙','🧆','🌮','🌯','🫔','🥗','🥘','🫕','🥫','🍝','🍜','🍲','🍛','🍣','🍱','🥟','🦪','🍤','🍙','🍚','🍘','🍥','🥠','🥮','🍢','🍡','🍧','🍨','🍦','🥧','🧁','🍰','🎂','🍮','🍭','🍬','🍫','🍿','🍩','🍪','🌰','🥜','🍯','🥛','🍼','🫖','☕','🍵','🧃','🥤','🧋','🍶','🍺','🍻','🥂','🍷','🥃','🍸','🍹','🧉','🍾'],
+    travel: ['✈️','🛫','🛬','🚀','🛸','🚁','🛶','⛵','🚤','🛥️','🛳️','🚢','🚗','🚕','🚙','🚌','🚎','🏎️','🚓','🚑','🚒','🚐','🛻','🚚','🚛','🚜','🏍️','🛵','🚲','🛴','🛹','🛼','🚏','🛣️','🗺️','🗿','🗽','🗼','🏰','🏯','🏟️','🎡','🎢','🎠','⛲','⛱️','🏖️','🏝️','🏜️','🌋','⛰️','🏔️','🗻','🏕️','🛖','🏠','🏡','🏢','🏣','🏤','🏥','🏦','🏨','🏩','🏪','🏫','🏬','🏭','🏯','🏰','💒','🗼','🗽'],
+    activities: ['⚽','🏀','🏈','⚾','🥎','🎾','🏐','🏉','🥏','🎱','🪀','🏓','🏸','🏒','🏑','🥍','🏏','🪃','🥅','⛳','🪁','🏹','🎣','🤿','🥊','🥋','🎽','🛹','🛼','🛷','⛸️','🥌','🎿','⛷️','🏂','🪂','🏋️','🤼','🤸','🤺','⛹️','🤾','🏌️','🏇','🧘','🏄','🏊','🤽','🚣','🧗','🚵','🚴','🏆','🥇','🥈','🥉','🏅','🎖️','🏵️','🎗️','🎫','🎟️','🎪','🎭','🎨','🎬','🎤','🎧','🎼','🎹','🥁','🪘','🎷','🎺','🪗','🎸','🪕','🎻','🎲','♟️','🎯','🎳','🎮','🕹️'],
+    objects: ['💡','🔦','🕯️','💰','💵','💴','💶','💷','🪙','💳','💎','⚖️','🪜','🧰','🪛','🔧','🔨','⚒️','🛠️','⛏️','🪚','🔩','⚙️','🪤','🧱','⛓️','🧲','🔫','💣','🧨','🪓','🔪','🗡️','⚔️','🛡️','🚬','⚰️','🪦','⚱️','🏺','🔮','📿','🧿','🪬','💈','⚗️','🔭','🔬','🕳️','🩹','🩺','🩻','💊','💉','🩸','🧬','🦠','🧫','🧪','🌡️','🧹','🪠','🧺','🧻','🚽','🚰','🚿','🛁','🛀','🪥','🪒','🧴','🧷','🧹','🪣','📱','📲','💻','⌨️','🖥️','🖨️','🖱️','🖲️','💽','💾','💿','📀','🧮','🎥','🎞️','📽️','🎬','📺','📷','📸','📹','📼','🔍','🔎','🕯️','💡','🔦','🏮','🪔','📔','📕','📖','📗','📘','📙','📚','📓','📒','📃','📜','📄','📰','🗞️','📑','🔖','🏷️','✉️','📧','📨','📩','📤','📥','📦','📫','📪','📬','📭','📮','🗳️','✏️','✒️','🖋️','🖊️','🖌️','🖍️','📝','📁','📂','🗂️','📅','📆','🗒️','🗓️','📇','📈','📉','📊','📋','📌','📍','📎','🖇️','📏','📐','✂️','🗃️','🗄️','🗑️','🔒','🔓','🔏','🔐','🔑','🗝️'],
+    symbols: ['❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔','❣️','💕','💞','💓','💗','💖','💘','💝','💟','☮️','✝️','☪️','🕉️','☸️','✡️','🔯','🕎','☯️','☦️','🛐','⛎','♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓','🆔','⚛️','🉑','☢️','☣️','📴','📳','🈶','🈚','🈸','🈺','🈷️','✴️','🆚','💮','🉐','㊙️','㊗️','🈴','🈵','🈹','🈲','🅰️','🅱️','🆎','🆑','🅾️','🆘','❌','⭕','🛑','⛔','📛','🚫','💯','💢','♨️','🚷','🚯','🚳','🚱','🔞','📵','🚭','❗','❕','❓','❔','‼️','⁉️','🔅','🔆','〽️','⚠️','🚸','🔱','⚜️','🔰','♻️','✅','🈯','💹','❇️','✳️','❎','🌐','💠','Ⓜ️','🌀','💤','🏧','🚾','♿','🅿️','🛗','🈳','🈂️','🛂','🛃','🛄','🛅','🚹','🚺','🚼','⚧️','🚻','🚮','🎦','📶','🈁','🔣','ℹ️','🔤','🔡','🔠','🆖','🆗','🆙','🆒','🆕','🆓','0️⃣','1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣','🔟','🔢','#️⃣','*️⃣','⏏️','▶️','⏸️','⏯️','⏹️','⏺️','⏭️','⏮️','⏩','⏪','⏫','⏬','◀️','🔼','🔽','➡️','⬅️','⬆️','⬇️','↗️','↘️','↙️','↖️','↕️','↔️','↪️','↩️','⤴️','⤵️','🔀','🔁','🔂','🔄','🔃','🎵','🎶','➕','➖','➗','✖️','🟰','♾️','💲','💱','™️','©️','®️','〰️','➰','➿','🔚','🔙','🔛','🔝','🔜','✔️','☑️','🔘','🔴','🟠','🟡','🟢','🔵','🟣','⚫','⚪','🟤','🔺','🔻','🔸','🔹','🔶','🔷','🔳','🔲','▪️','▫️','◾','◽','◼️','◻️','🟥','🟧','🟨','🟩','🟦','🟪','⬛','⬜','🟫','🔈','🔇','🔉','🔊','🔔','🔕','📣','📢','⭐','🌟','💫','✨','🔥','💥','🎉','🎊'],
+    flags: ['🏁','🚩','🎌','🏴','🏳️','🏳️‍🌈','🏳️‍⚧️','🏴‍☠️','🇦🇫','🇦🇱','🇩🇿','🇦🇸','🇦🇩','🇦🇴','🇦🇬','🇦🇷','🇦🇲','🇦🇺','🇦🇹','🇦🇿','🇧🇸','🇧🇭','🇧🇩','🇧🇧','🇧🇾','🇧🇪','🇧🇿','🇧🇯','🇧🇹','🇧🇴','🇧🇦','🇧🇼','🇧🇷','🇧🇳','🇧🇬','🇧🇫','🇧🇮','🇨🇦','🇨🇳','🇨🇴','🇨🇷','🇨🇺','🇩🇰','🇪🇬','🇫🇷','🇩🇪','🇬🇭','🇬🇷','🇮🇳','🇮🇩','🇮🇷','🇮🇶','🇮🇪','🇮🇱','🇮🇹','🇯🇲','🇯🇵','🇯🇴','🇰🇪','🇰🇷','🇰🇼','🇱🇧','🇱🇾','🇲🇾','🇲🇽','🇲🇦','🇳🇬','🇳🇴','🇵🇰','🇵🇸','🇵🇭','🇵🇱','🇵🇹','🇶🇦','🇷🇴','🇷🇺','🇸🇦','🇸🇳','🇸🇬','🇿🇦','🇪🇸','🇸🇪','🇨🇭','🇹🇷','🇦🇪','🇬🇧','🇺🇸']
+};
+
+var currentEmojiCategory = 'smileys';
+
+function loadEmojis(category) {
+    var grid = document.getElementById('emojiGrid');
+    var emojis = emojiData[category] || emojiData.smileys;
+    var html = '';
+    
+    for (var i = 0; i < emojis.length; i++) {
+        html += '<button class="emoji-btn" onclick="insertEmoji(\'' + emojis[i] + '\')">' + emojis[i] + '</button>';
+    }
+    
+    grid.innerHTML = html;
+}
+
+function showEmojiCategory(category, btn) {
+    currentEmojiCategory = category;
+    
+    var buttons = document.querySelectorAll('.emoji-cat-btn');
+    for (var i = 0; i < buttons.length; i++) {
+        buttons[i].classList.remove('active');
+    }
+    btn.classList.add('active');
+    
+    loadEmojis(category);
+}
+
+function openEmojiPicker(target) {
+    emojiTarget = target;
+    loadEmojis(currentEmojiCategory);
+    document.getElementById('emojiPicker').classList.add('active');
+}
+
+function closeEmojiPicker(e) {
+    if (e && e.target !== e.currentTarget) return;
+    document.getElementById('emojiPicker').classList.remove('active');
+}
+
+function insertEmojiToTarget(emoji) {
+    if (emojiTarget === 'composer') {
+        var textarea = document.getElementById('composerText');
+        textarea.value += emoji;
+        textarea.focus();
+    } else if (emojiTarget === 'story') {
+        var input = document.getElementById('storyCaptionInput');
+        input.value += emoji;
+    }
+    closeEmojiPicker();
+}
+
+function filterEmojis(query) {
+    if (!query) {
+        loadEmojis(currentEmojiCategory);
+        return;
+    }
+    
+    var grid = document.getElementById('emojiGrid');
+    var allEmojis = [];
+    for (var cat in emojiData) {
+        allEmojis = allEmojis.concat(emojiData[cat]);
+    }
+    
+    var html = '';
+    for (var i = 0; i < allEmojis.length; i++) {
+        html += '<button class="emoji-btn" onclick="insertEmojiToTarget(\'' + allEmojis[i] + '\')">' + allEmojis[i] + '</button>';
+    }
+    grid.innerHTML = html;
+}
+
+// Update the existing emoji button in composer
+function openComposerEmoji() {
+    emojiTarget = 'composer';
+    loadEmojis(currentEmojiCategory);
+    document.getElementById('emojiPicker').classList.add('active');
+}
+
+// ================================
+// STORY CREATOR
+// ================================
+var storyMedia = null;
+var cameraStream = null;
+var facingMode = 'user';
+
+function openStoryCreator() {
+    document.getElementById('storyCreator').classList.add('active');
+    document.getElementById('storyPlaceholder').style.display = 'flex';
+    document.getElementById('storyPreviewImg').style.display = 'none';
+    document.getElementById('storyControls').classList.remove('active');
+    document.getElementById('cameraControls').style.display = 'none';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeStoryCreator(e) {
+    if (e && e.target !== e.currentTarget) return;
+    document.getElementById('storyCreator').classList.remove('active');
+    document.body.style.overflow = '';
+    stopCamera();
+    storyMedia = null;
+}
+
+function previewStoryFile(input) {
+    if (input.files && input.files[0]) {
+        storyMedia = input.files[0];
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var img = document.getElementById('storyPreviewImg');
+            img.src = e.target.result;
+            img.style.display = 'block';
+            document.getElementById('storyPlaceholder').style.display = 'none';
+            document.getElementById('storyControls').classList.add('active');
+            document.getElementById('cameraControls').style.display = 'none';
+            stopCamera();
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function openCamera() {
+    var video = document.getElementById('storyCameraView');
+    
+    navigator.mediaDevices.getUserMedia({
+        video: { facingMode: facingMode },
+        audio: false
+    }).then(function(stream) {
+        cameraStream = stream;
+        video.srcObject = stream;
+        video.style.display = 'block';
+        document.getElementById('storyPlaceholder').style.display = 'none';
+        document.getElementById('storyPreviewImg').style.display = 'none';
+        document.getElementById('cameraControls').style.display = 'flex';
+        document.getElementById('storyControls').classList.remove('active');
+    }).catch(function(err) {
+        alert('Camera access denied. Please allow camera access in your browser settings.');
+        console.log('Camera error:', err);
+    });
+}
+
+function switchCamera() {
+    facingMode = facingMode === 'user' ? 'environment' : 'user';
+    stopCamera();
+    openCamera();
+}
+
+function capturePhoto() {
+    var video = document.getElementById('storyCameraView');
+    var canvas = document.getElementById('storyCaptureCanvas');
+    
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+    
+    canvas.toBlob(function(blob) {
+        storyMedia = new File([blob], 'camera_photo.jpg', { type: 'image/jpeg' });
+        
+        var img = document.getElementById('storyPreviewImg');
+        img.src = canvas.toDataURL('image/jpeg');
+        img.style.display = 'block';
+        
+        video.style.display = 'none';
+        document.getElementById('cameraControls').style.display = 'none';
+        document.getElementById('storyControls').classList.add('active');
+        
+        stopCamera();
+    }, 'image/jpeg', 0.9);
+}
+
+function closeCameraView() {
+    stopCamera();
+    document.getElementById('storyCameraView').style.display = 'none';
+    document.getElementById('cameraControls').style.display = 'none';
+    document.getElementById('storyPlaceholder').style.display = 'flex';
+}
+
+function stopCamera() {
+    if (cameraStream) {
+        cameraStream.getTracks().forEach(function(track) {
+            track.stop();
+        });
+        cameraStream = null;
+    }
+}
+
+function applyStoryFilter(filterName, el) {
+    var chips = document.querySelectorAll('.story-filter-chip');
+    for (var i = 0; i < chips.length; i++) {
+        chips[i].classList.remove('active');
+    }
+    el.classList.add('active');
+    
+    var img = document.getElementById('storyPreviewImg');
+    img.className = 'filter-' + filterName;
+    img.style.display = 'block';
+}
+
+function openStoryEmojiPicker() {
+    emojiTarget = 'story';
+    loadEmojis(currentEmojiCategory);
+    document.getElementById('emojiPicker').classList.add('active');
+}
+
+function addStoryText() {
+    var text = prompt('Enter text for your story:');
+    if (text) {
+        document.getElementById('storyCaptionInput').value = text;
+    }
+}
+
+function postStory() {
+    if (!storyMedia) {
+        alert('Please select or take a photo first');
+        return;
+    }
+    
+    var fd = new FormData();
+    fd.append('media', storyMedia);
+    
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/story', true);
+    
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            alert('Story posted!');
+            closeStoryCreator();
+            window.location.reload();
+        } else {
+            alert('Failed to post story');
+        }
+    };
+    
+    xhr.onerror = function() {
+        alert('Network error');
+    };
+    
+    xhr.send(fd);
+}
+</script>
+
+{% endblock %}

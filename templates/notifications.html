@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}Notifications | Block4{% endblock %}
+{% block content %}
+
+<div class="notifications-page">
+    
+    <!-- Header -->
+    <div class="notif-header">
+        <h1><i class="fa-solid fa-bell"></i> Notifications</h1>
+        {% if notifications %}
+        <button class="btn-clear-notifs" onclick="markAllRead()">
+            <i class="fa-solid fa-check-double"></i>
+            <span>Mark all read</span>
+        </button>
+        {% endif %}
+    </div>
+    
+    <!-- Notifications List -->
+    <div class="notif-list">
+        {% if notifications %}
+            {% for notif in notifications %}
+            <div class="notif-item {% if not notif.is_read %}unread{% endif %}">
+                <div class="notif-icon-wrapper">
+                    {% if notif.type == 'like' %}
+                    <div class="notif-icon like">
+                        <i class="fa-solid fa-heart"></i>
+                    </div>
+                    {% elif notif.type == 'comment' %}
+                    <div class="notif-icon comment">
+                        <i class="fa-solid fa-comment"></i>
+                    </div>
+                    {% elif notif.type == 'follow' %}
+                    <div class="notif-icon follow">
+                        <i class="fa-solid fa-user-plus"></i>
+                    </div>
+                    {% elif notif.type == 'message' %}
+                    <div class="notif-icon message">
+                        <i class="fa-solid fa-envelope"></i>
+                    </div>
+                    {% else %}
+                    <div class="notif-icon default">
+                        <i class="fa-solid fa-bell"></i>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="notif-content">
+                    <p>
+                        {% if notif.username %}
+                        <a href="{{ url_for('profile', username=notif.username) }}" class="notif-username">{{ notif.username }}</a>
+                        {% endif %}
+                        
+                        {% if notif.type == 'like' %}
+                        liked your post
+                        {% elif notif.type == 'comment' %}
+                        commented on your post
+                        {% elif notif.type == 'follow' %}
+                        started following you
+                        {% elif notif.type == 'message' %}
+                        sent you a message
+                        {% else %}
+                        sent you a notification
+                        {% endif %}
+                        
+                        {% if notif.content %}
+                        <span class="notif-preview">"{{ notif.content }}"</span>
+                        {% endif %}
+                    </p>
+                    <span class="notif-time">{{ notif.time_ago }}</span>
+                </div>
+                
+                <div class="notif-actions">
+                    {% if notif.type == 'follow' and notif.username %}
+                    <a href="{{ url_for('profile', username=notif.username) }}" class="btn-follow-small">View</a>
+                    {% elif notif.type == 'message' and notif.from_user_id %}
+                    <a href="{{ url_for('chat', user_id=notif.from_user_id) }}" class="btn-follow-small">Reply</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fa-solid fa-bell-slash"></i>
+            </div>
+            <h3>No notifications yet</h3>
+            <p>When someone likes, comments, or follows you, it will show up here.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function markAllRead() {
+    var unreadItems = document.querySelectorAll('.notif-item.unread');
+    for (var i = 0; i < unreadItems.length; i++) {
+        unreadItems[i].classList.remove('unread');
+    }
+    
+    var badge = document.getElementById('notifBadge');
+    if (badge) {
+        badge.style.display = 'none';
+    }
+}
+</script>
+
+{% endblock %}

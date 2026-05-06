@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.db
+.env
+static/uploads/posts/*
+static/uploads/stories/*
+static/uploads/profiles/*
+!static/uploads/posts/.gitkeep
+!static/uploads/stories/.gitkeep
+!static/uploads/profiles/.gitkeep

@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+{% block title %}Messages | Block4{% endblock %}
+{% block content %}
+
+<div class="messages-page">
+    
+    <!-- Messages Header -->
+    <div class="messages-header">
+        <h1><i class="fa-solid fa-envelope"></i> Messages</h1>
+        <button class="btn-new-message" onclick="openNewMessage()">
+            <i class="fa-solid fa-pen-to-square"></i>
+            <span>New Message</span>
+        </button>
+    </div>
+    
+    <!-- Search Users -->
+    <div class="messages-search">
+        <div class="search-wrapper">
+            <i class="fa-solid fa-search"></i>
+            <input type="text" id="userSearch" placeholder="Search users to message..." oninput="searchUsers(this.value)">
+        </div>
+        <div class="search-results" id="searchResults" style="display:none;"></div>
+    </div>
+    
+    <!-- Conversations List -->
+    <div class="conversations-list">
+        {% if conversations %}
+            {% for conv in conversations %}
+            <a href="{{ url_for('chat', user_id=conv.other_user_id) }}" class="conversation-item">
+                <div class="conv-avatar">
+                    {% if conv.avatar %}
+                    <img src="{{ conv.avatar }}" alt="{{ conv.username }}">
+                    {% else %}
+                    <div class="user-avatar">{{ conv.username[0].upper() }}</div>
+                    {% endif %}
+                </div>
+                <div class="conv-info">
+                    <div class="conv-top">
+                        <strong>{{ conv.username }}</strong>
+                    </div>
+                    <p class="conv-last-message">{{ conv.last_message[:50] if conv.last_message else 'Start a conversation' }}{% if conv.last_message and conv.last_message|length > 50 %}...{% endif %}</p>
+                </div>
+                <div class="conv-meta">
+                    <i class="fa-solid fa-chevron-right" style="color:var(--text-muted); font-size:12px;"></i>
+                </div>
+            </a>
+            {% endfor %}
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fa-solid fa-comments"></i>
+            </div>
+            <h3>No messages yet</h3>
+            <p>Search for users above to start a conversation!</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- NEW MESSAGE MODAL -->
+<div class="modal-overlay" id="newMessageModal" onclick="closeNewMessage(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h3>New Message</h3>
+            <button class="close-btn" onclick="closeNewMessage()">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="search-wrapper" style="margin-bottom:16px;">
+                <i class="fa-solid fa-search"></i>
+                <input type="text" id="modalUserSearch" placeholder="Search for a user..." oninput="searchUsersModal(this.value)">
+            </div>
+            <div id="modalSearchResults"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+function openNewMessage() {
+    document.getElementById('newMessageModal').classList.add('active');
+    setTimeout(function() {
+        document.getElementById('modalUserSearch').focus();
+    }, 100);
+}
+
+function closeNewMessage(e) {
+    if (e && e.target !== e.currentTarget) return;
+    document.getElementById('newMessageModal').classList.remove('active');
+}
+
+function searchUsers(query) {
+    var results = document.getElementById('searchResults');
+    
+    if (query.length < 2) {
+        results.style.display = 'none';
+        return;
+    }
+    
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/api/search?q=' + encodeURIComponent(query), true);
+    
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            var data = JSON.parse(xhr.responseText);
+            
+            if (data.users.length === 0) {
+                results.innerHTML = '<p style="padding:16px; color:var(--text-muted); text-align:center;">No users found</p>';
+                results.style.display = 'block';
+                return;
+            }
+            
+            var html = '';
+            for (var i = 0; i < data.users.length; i++) {
+                var user = data.users[i];
+                html += '<a href="/messages/' + user.id + '" class="search-result-item">';
+                html += '<div class="user-avatar small">' + user.username[0].toUpperCase() + '</div>';
+                html += '<div class="search-result-info">';
+                html += '<strong>' + user.username + '</strong>';
+                html += '<span>@' + user.username.toLowerCase() + '</span>';
+                html += '</div>';
+                html += '<i class="fa-solid fa-paper-plane" style="color:var(--gold);"></i>';
+                html += '</a>';
+            }
+            
+            results.innerHTML = html;
+            results.style.display = 'block';
+        }
+    };
+    
+    xhr.send();
+}
+
+function searchUsersModal(query) {
+    var results = document.getElementById('modalSearchResults');
+    
+    if (query.length < 2) {
+        results.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding:20px;">Type at least 2 characters to search</p>';
+        return;
+    }
+    
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/api/search?q=' + encodeURIComponent(query), true);
+    
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            var data = JSON.parse(xhr.responseText);
+            
+            if (data.users.length === 0) {
+                results.innerHTML = '<p style="padding:20px; color:var(--text-muted); text-align:center;">No users found</p>';
+                return;
+            }
+            
+            var html = '';
+            for (var i = 0; i < data.users.length; i++) {
+                var user = data.users[i];
+                html += '<a href="/messages/' + user.id + '" style="display:flex; align-items:center; gap:12px; padding:12px; border-radius:var(--radius-md); text-decoration:none; color:var(--text-primary);">';
+                html += '<div class="user-avatar small">' + user.username[0].toUpperCase() + '</div>';
+                html += '<div style="flex:1;">';
+                html += '<strong style="display:block;">' + user.username + '</strong>';
+                html += '<span style="font-size:13px; color:var(--text-muted);">@' + user.username.toLowerCase() + '</span>';
+                html += '</div>';
+                html += '<i class="fa-solid fa-paper-plane" style="color:var(--gold);"></i>';
+                html += '</a>';
+            }
+            
+            results.innerHTML = html;
+        }
+    };
+    
+    xhr.send();
+}
+</script>
+
+{% endblock %}

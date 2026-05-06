@@ -1,0 +1,499 @@
+{% extends "base.html" %}
+{% block title %}Settings | Block4{% endblock %}
+{% block content %}
+
+<div class="settings-page">
+    
+    <!-- Settings Header -->
+    <div class="settings-header">
+        <h1><i class="fa-solid fa-gear"></i> Settings</h1>
+    </div>
+    
+    <!-- Settings Navigation -->
+    <div class="settings-layout">
+        <div class="settings-nav">
+            <button class="settings-nav-item active" onclick="switchSettings('profile', this)">
+                <i class="fa-solid fa-user"></i>
+                <span>Edit Profile</span>
+            </button>
+            <button class="settings-nav-item" onclick="switchSettings('password', this)">
+                <i class="fa-solid fa-lock"></i>
+                <span>Password</span>
+            </button>
+            <button class="settings-nav-item" onclick="switchSettings('notifications-settings', this)">
+                <i class="fa-solid fa-bell"></i>
+                <span>Notifications</span>
+            </button>
+            <button class="settings-nav-item" onclick="switchSettings('privacy', this)">
+                <i class="fa-solid fa-shield"></i>
+                <span>Privacy</span>
+            </button>
+            <button class="settings-nav-item" onclick="switchSettings('appearance', this)">
+                <i class="fa-solid fa-palette"></i>
+                <span>Appearance</span>
+            </button>
+            <button class="settings-nav-item" onclick="switchSettings('account', this)">
+                <i class="fa-solid fa-user-gear"></i>
+                <span>Account</span>
+            </button>
+            <button class="settings-nav-item" onclick="switchSettings('about', this)">
+                <i class="fa-solid fa-circle-info"></i>
+                <span>About</span>
+            </button>
+            <a href="{{ url_for('logout') }}" class="settings-nav-item logout">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span>Log Out</span>
+            </a>
+        </div>
+        
+        <!-- Settings Content -->
+        <div class="settings-content">
+            
+            <!-- EDIT PROFILE -->
+            <div class="settings-section" id="profileSection">
+                <h2>Edit Profile</h2>
+                <p class="settings-desc">Update your profile information visible to others</p>
+                
+                <form action="{{ url_for('update_settings_profile') }}" method="POST" enctype="multipart/form-data">
+                    
+                    <!-- Avatar -->
+                    <div class="avatar-upload-section">
+                        <div class="current-avatar">
+                            {% if user.avatar %}
+                            <img src="{{ user.avatar }}" alt="Avatar" class="settings-avatar-img">
+                            {% else %}
+                            <div class="settings-avatar">{{ user.username[0].upper() }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="avatar-upload-info">
+                            <h3>{{ user.username }}</h3>
+                            <p>{{ post_count }} posts · {{ followers }} followers · {{ following }} following</p>
+                            <label class="btn-change-avatar">
+                                <i class="fa-solid fa-camera"></i>
+                                <span>Change Photo</span>
+                                <input type="file" name="avatar" accept="image/*" style="display:none;" onchange="previewAvatar(this)">
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Preview -->
+                    <div id="avatarPreview" style="display:none; margin-bottom:20px; text-align:center;">
+                        <img id="avatarPreviewImg" src="" style="width:100px; height:100px; border-radius:50%; object-fit:cover; border:3px solid var(--gold);">
+                        <p style="color:var(--gold); font-size:13px; margin-top:8px;">New photo selected</p>
+                    </div>
+                    
+                    <!-- Username -->
+                    <div class="settings-field">
+                        <label>Username</label>
+                        <div class="settings-input-wrapper">
+                            <i class="fa-solid fa-at"></i>
+                            <input type="text" name="username" value="{{ user.username }}" required minlength="3">
+                        </div>
+                    </div>
+                    
+                    <!-- Email -->
+                    <div class="settings-field">
+                        <label>Email</label>
+                        <div class="settings-input-wrapper">
+                            <i class="fa-solid fa-envelope"></i>
+                            <input type="email" name="email" value="{{ user.email }}" required>
+                        </div>
+                    </div>
+                    
+                    <!-- Bio -->
+                    <div class="settings-field">
+                        <label>Bio</label>
+                        <textarea name="bio" placeholder="Tell us about yourself..." maxlength="200">{{ user.bio }}</textarea>
+                        <span class="field-hint">{{ user.bio|length if user.bio else 0 }}/200 characters</span>
+                    </div>
+                    
+                    <button type="submit" class="btn-save-settings">
+                        <i class="fa-solid fa-check"></i>
+                        Save Changes
+                    </button>
+                </form>
+            </div>
+            
+            <!-- CHANGE PASSWORD -->
+            <div class="settings-section" id="passwordSection" style="display:none;">
+                <h2>Change Password</h2>
+                <p class="settings-desc">Update your password to keep your account secure</p>
+                
+                <form action="{{ url_for('change_password') }}" method="POST">
+                    <div class="settings-field">
+                        <label>Current Password</label>
+                        <div class="settings-input-wrapper">
+                            <i class="fa-solid fa-lock"></i>
+                            <input type="password" name="current_password" placeholder="Enter current password" required>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-field">
+                        <label>New Password</label>
+                        <div class="settings-input-wrapper">
+                            <i class="fa-solid fa-key"></i>
+                            <input type="password" name="new_password" placeholder="Enter new password" required minlength="6">
+                        </div>
+                    </div>
+                    
+                    <div class="settings-field">
+                        <label>Confirm New Password</label>
+                        <div class="settings-input-wrapper">
+                            <i class="fa-solid fa-key"></i>
+                            <input type="password" name="confirm_password" placeholder="Confirm new password" required minlength="6">
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn-save-settings">
+                        <i class="fa-solid fa-lock"></i>
+                        Update Password
+                    </button>
+                </form>
+            </div>
+            
+            <!-- NOTIFICATION SETTINGS -->
+            <div class="settings-section" id="notifications-settingsSection" style="display:none;">
+                <h2>Notification Preferences</h2>
+                <p class="settings-desc">Control what notifications you receive</p>
+                
+                <div class="settings-toggle-list">
+                    <div class="settings-toggle-item">
+                        <div class="toggle-info">
+                            <strong>Likes</strong>
+                            <span>Get notified when someone likes your post</span>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="settings-toggle-item">
+                        <div class="toggle-info">
+                            <strong>Comments</strong>
+                            <span>Get notified when someone comments on your post</span>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="settings-toggle-item">
+                        <div class="toggle-info">
+                            <strong>New Followers</strong>
+                            <span>Get notified when someone follows you</span>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="settings-toggle-item">
+                        <div class="toggle-info">
+                            <strong>Direct Messages</strong>
+                            <span>Get notified when you receive a message</span>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="settings-toggle-item">
+                        <div class="toggle-info">
+                            <strong>Email Notifications</strong>
+                            <span>Receive notifications via email</span>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- PRIVACY -->
+            <div class="settings-section" id="privacySection" style="display:none;">
+                <h2>Privacy & Security</h2>
+                <p class="settings-desc">Manage your privacy settings</p>
+                
+                <div class="settings-toggle-list">
+                    <div class="settings-toggle-item">
+                        <div class="toggle-info">
+                            <strong>Private Account</strong>
+                            <span>Only approved followers can see your posts</span>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="settings-toggle-item">
+                        <div class="toggle-info">
+                            <strong>Show Activity Status</strong>
+                            <span>Let others see when you're online</span>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="settings-toggle-item">
+                        <div class="toggle-info">
+                            <strong>Allow Messages from Everyone</strong>
+                            <span>Receive messages from people you don't follow</span>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="settings-toggle-item">
+                        <div class="toggle-info">
+                            <strong>Two-Factor Authentication</strong>
+                            <span>Add extra security to your account</span>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- APPEARANCE -->
+            <div class="settings-section" id="appearanceSection" style="display:none;">
+                <h2>Appearance</h2>
+                <p class="settings-desc">Customize how Block4 looks for you</p>
+                
+                <div class="theme-selector">
+                    <h3>Theme</h3>
+                    <div class="theme-options">
+                        <div class="theme-option active" onclick="selectTheme('dark', this)">
+                            <div class="theme-preview dark-preview">
+                                <div class="theme-dot"></div>
+                            </div>
+                            <span>Dark Gold</span>
+                        </div>
+                        <div class="theme-option" onclick="selectTheme('midnight', this)">
+                            <div class="theme-preview midnight-preview">
+                                <div class="theme-dot"></div>
+                            </div>
+                            <span>Midnight</span>
+                        </div>
+                        <div class="theme-option" onclick="selectTheme('light', this)">
+                            <div class="theme-preview light-preview">
+                                <div class="theme-dot"></div>
+                            </div>
+                            <span>Light</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="settings-toggle-list" style="margin-top:30px;">
+                    <div class="settings-toggle-item">
+                        <div class="toggle-info">
+                            <strong>Animated Background</strong>
+                            <span>Show glowing orb animations</span>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="settings-toggle-item">
+                        <div class="toggle-info">
+                            <strong>Compact Mode</strong>
+                            <span>Show more content with smaller spacing</span>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ACCOUNT -->
+            <div class="settings-section" id="accountSection" style="display:none;">
+                <h2>Account</h2>
+                <p class="settings-desc">Manage your account settings</p>
+                
+                <div class="account-info-card">
+                    <h3>Account Information</h3>
+                    <div class="account-info-row">
+                        <span>Username</span>
+                        <strong>@{{ user.username }}</strong>
+                    </div>
+                    <div class="account-info-row">
+                        <span>Email</span>
+                        <strong>{{ user.email }}</strong>
+                    </div>
+                    <div class="account-info-row">
+                        <span>Member Since</span>
+                        <strong>{{ user.created_at[:10] if user.created_at else 'Unknown' }}</strong>
+                    </div>
+                    <div class="account-info-row">
+                        <span>Posts</span>
+                        <strong>{{ post_count }}</strong>
+                    </div>
+                    <div class="account-info-row">
+                        <span>Followers</span>
+                        <strong>{{ followers }}</strong>
+                    </div>
+                    <div class="account-info-row">
+                        <span>Following</span>
+                        <strong>{{ following }}</strong>
+                    </div>
+                </div>
+                
+                <!-- Danger Zone -->
+                <div class="danger-zone">
+                    <h3><i class="fa-solid fa-triangle-exclamation"></i> Danger Zone</h3>
+                    <p>Once you delete your account, there is no going back. Please be certain.</p>
+                    <button class="btn-delete-account" onclick="openDeleteModal()">
+                        <i class="fa-solid fa-trash"></i>
+                        Delete Account
+                    </button>
+                </div>
+            </div>
+            
+            <!-- ABOUT -->
+            <div class="settings-section" id="aboutSection" style="display:none;">
+                <h2>About Block4</h2>
+                <p class="settings-desc">Learn more about the platform</p>
+                
+                <div class="about-card">
+                    <div class="about-logo">
+                        <div class="logo-icon large">B4</div>
+                    </div>
+                    <h3>Block4</h3>
+                    <p class="about-version">Version 1.0.0</p>
+                    <p class="about-desc">Block4 is a premium social trading platform built for traders, creators, and innovators. Connect, share, and grow together.</p>
+                    
+                    <div class="about-links">
+                        <a href="#" class="about-link">
+                            <i class="fa-solid fa-globe"></i> Website
+                        </a>
+                        <a href="#" class="about-link">
+                            <i class="fa-brands fa-twitter"></i> Twitter
+                        </a>
+                        <a href="#" class="about-link">
+                            <i class="fa-brands fa-instagram"></i> Instagram
+                        </a>
+                        <a href="#" class="about-link">
+                            <i class="fa-brands fa-discord"></i> Discord
+                        </a>
+                    </div>
+                    
+                    <p class="about-copyright">© 2026 Block4. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- DELETE ACCOUNT MODAL -->
+<div class="modal-overlay" id="deleteModal" onclick="closeDeleteModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h3 style="color: var(--error);">Delete Account</h3>
+            <button class="close-btn" onclick="closeDeleteModal()">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <form action="{{ url_for('delete_account') }}" method="POST">
+            <div class="modal-body">
+                <div style="text-align:center; padding:20px 0;">
+                    <i class="fa-solid fa-triangle-exclamation" style="font-size:48px; color:var(--error); margin-bottom:16px;"></i>
+                    <h3>Are you absolutely sure?</h3>
+                    <p style="color:var(--text-secondary); margin:12px 0;">This will permanently delete your account, posts, messages, and all data. This action cannot be undone.</p>
+                </div>
+                <div class="settings-field">
+                    <label>Enter your password to confirm</label>
+                    <div class="settings-input-wrapper">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" name="password" placeholder="Your password" required>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" onclick="closeDeleteModal()">Cancel</button>
+                <button type="submit" class="btn-delete-confirm">
+                    <i class="fa-solid fa-trash"></i> Delete Forever
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function switchSettings(section, btn) {
+    var sections = document.querySelectorAll('.settings-section');
+    for (var i = 0; i < sections.length; i++) {
+        sections[i].style.display = 'none';
+    }
+    
+    var buttons = document.querySelectorAll('.settings-nav-item');
+    for (var i = 0; i < buttons.length; i++) {
+        buttons[i].classList.remove('active');
+    }
+    
+    document.getElementById(section + 'Section').style.display = 'block';
+    btn.classList.add('active');
+}
+
+function previewAvatar(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('avatarPreviewImg').src = e.target.result;
+            document.getElementById('avatarPreview').style.display = 'block';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function selectTheme(theme, el) {
+    var options = document.querySelectorAll('.theme-option');
+    for (var i = 0; i < options.length; i++) {
+        options[i].classList.remove('active');
+    }
+    el.classList.add('active');
+    
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('block4-theme', theme);
+}
+
+var savedTheme = localStorage.getItem('block4-theme');
+if (savedTheme) {
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    
+    var options = document.querySelectorAll('.theme-option');
+    for (var i = 0; i < options.length; i++) {
+        options[i].classList.remove('active');
+    }
+    
+    var themeMap = { 'dark': 0, 'midnight': 1, 'light': 2 };
+    if (themeMap[savedTheme] !== undefined && options[themeMap[savedTheme]]) {
+        options[themeMap[savedTheme]].classList.add('active');
+    }
+}
+
+function openDeleteModal() {
+    document.getElementById('deleteModal').classList.add('active');
+}
+
+function closeDeleteModal(e) {
+    if (e && e.target !== e.currentTarget) return;
+    document.getElementById('deleteModal').classList.remove('active');
+}
+</script>
+
+{% endblock %}

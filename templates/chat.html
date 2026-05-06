@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+{% block title %}Chat with {{ other_user.username }} | Block4{% endblock %}
+{% block content %}
+
+<div class="chat-page">
+    
+    <!-- Chat Header -->
+    <div class="chat-header-bar">
+        <a href="{{ url_for('messages') }}" class="back-btn">
+            <i class="fa-solid fa-arrow-left"></i>
+        </a>
+        <a href="{{ url_for('profile', username=other_user.username) }}" class="chat-user-info" style="text-decoration:none; color:inherit;">
+            {% if other_user.avatar %}
+            <img src="{{ other_user.avatar }}" alt="{{ other_user.username }}" class="chat-user-avatar-img">
+            {% else %}
+            <div class="user-avatar">{{ other_user.username[0].upper() }}</div>
+            {% endif %}
+            <div>
+                <strong>{{ other_user.username }}</strong>
+                <span class="chat-status">
+                    <span class="status-dot"></span> Online
+                </span>
+            </div>
+        </a>
+        <div class="chat-header-actions">
+            <button class="icon-btn" onclick="alert('Voice call coming soon!')">
+                <i class="fa-solid fa-phone"></i>
+            </button>
+            <button class="icon-btn" onclick="alert('Video call coming soon!')">
+                <i class="fa-solid fa-video"></i>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Chat Messages Window -->
+    <div class="chat-messages-window" id="chatMessages">
+        {% if messages %}
+            {% for msg in messages %}
+            <div class="dm-message {% if msg.sender_id == session.user_id %}sent{% else %}received{% endif %}">
+                <div class="dm-bubble">
+                    <p>{{ msg.content }}</p>
+                    <span class="dm-time">{{ msg.created_at[-8:-3] if msg.created_at else '' }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+        <div class="chat-start-message">
+            <div class="user-avatar" style="width:60px; height:60px; font-size:24px; margin:0 auto 16px;">
+                {{ other_user.username[0].upper() }}
+            </div>
+            <h3>{{ other_user.username }}</h3>
+            <p>This is the beginning of your conversation. Say hello!</p>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Typing Indicator -->
+    <div class="typing-indicator" id="typingIndicator" style="display:none;">
+        <span>{{ other_user.username }} is typing</span>
+        <div class="typing-dots">
+            <span></span><span></span><span></span>
+        </div>
+    </div>
+    
+    <!-- Chat Input -->
+    <div class="chat-input-bar">
+        <button class="icon-btn" onclick="document.getElementById('chatFileInput').click()" style="flex-shrink:0;">
+            <i class="fa-solid fa-paperclip"></i>
+        </button>
+        <input type="file" id="chatFileInput" accept="image/*" style="display:none;">
+        <input type="text" id="dmInput" placeholder="Type a message..."
+               onkeypress="if(event.key === 'Enter') sendDM()" autocomplete="off">
+        <button class="icon-btn" onclick="insertEmoji()" style="flex-shrink:0;">
+            <i class="fa-solid fa-face-smile"></i>
+        </button>
+        <button class="send-btn" onclick="sendDM()" style="flex-shrink:0;">
+            <i class="fa-solid fa-paper-plane"></i>
+        </button>
+    </div>
+</div>
+
+<script>
+var chatMessages = document.getElementById('chatMessages');
+var receiverId = {{ other_user.id }};
+var lastMessageCount = chatMessages.querySelectorAll('.dm-message').length;
+var myUsername = '{{ session.username }}';
+
+// Scroll to bottom on load
+chatMessages.scrollTop = chatMessages.scrollHeight;
+
+function sendDM() {
+    var input = document.getElementById('dmInput');
+    var content = input.value.trim();
+    
+    if (!content) return;
+    
+    // Get current time
+    var now = new Date();
+    var hours = now.getHours().toString().padStart(2, '0');
+    var mins = now.getMinutes().toString().padStart(2, '0');
+    var timeStr = hours + ':' + mins;
+    
+    // Add message to UI immediately
+    var div = document.createElement('div');
+    div.className = 'dm-message sent new-message';
+    div.innerHTML = '<div class="dm-bubble"><p>' + escapeHtml(content) + '</p><span class="dm-time">' + timeStr + '</span></div>';
+    
+    // Remove start message if exists
+    var startMsg = document.querySelector('.chat-start-message');
+    if (startMsg) startMsg.remove();
+    
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+    input.value = '';
+    input.focus();
+    
+    lastMessageCount++;
+    
+    // Send to server
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/message', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    
+    xhr.onload = function() {
+        if (xhr.status !== 200) {
+            div.querySelector('.dm-bubble').style.borderColor = 'var(--error)';
+        }
+    };
+    
+    xhr.onerror = function() {
+        div.querySelector('.dm-bubble').style.borderColor = 'var(--error)';
+    };
+    
+    xhr.send(JSON.stringify({
+        receiver_id: receiverId,
+        content: content
+    }));
+}
+
+function escapeHtml(text) {
+    var div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Poll for new messages every 3 seconds
+function checkNewMessages() {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/api/chat/' + receiverId + '/messages', true);
+    
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            var data = JSON.parse(xhr.responseText);
+            
+            if (data.messages && data.messages.length > lastMessageCount) {
+                // New messages received
+                var newMsgs = data.messages.slice(lastMessageCount);
+                
+                for (var i = 0; i < newMsgs.length; i++) {
+                    var msg = newMsgs[i];
+                    
+                    if (msg.sender_id != {{ session.user_id }}) {
+                        var div = document.createElement('div');
+                        div.className = 'dm-message received new-message';
+                        div.innerHTML = '<div class="dm-bubble"><p>' + escapeHtml(msg.content) + '</p></div>';
+                        chatMessages.appendChild(div);
+                    }
+                }
+                
+                lastMessageCount = data.messages.length;
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+        }
+    };
+    
+    xhr.send();
+}
+
+setInterval(checkNewMessages, 3000);
+
+function insertEmoji() {
+    var emojis = ['😀', '😂', '🔥', '💪', '📈', '💰', '🎯', '⭐', '❤️', '👍', '🚀', '💎'];
+    var emoji = emojis[Math.floor(Math.random() * emojis.length)];
+    var input = document.getElementById('dmInput');
+    input.value += emoji;
+    input.focus();
+}
+</script>
+
+{% endblock %}

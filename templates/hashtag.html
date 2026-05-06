@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}#{{ tag }} | Block4{% endblock %}
+{% block content %}
+
+<div class="hashtag-page">
+    
+    <!-- Header -->
+    <div class="hashtag-header">
+        <div class="hashtag-info">
+            <div class="hashtag-icon">
+                <i class="fa-solid fa-hashtag"></i>
+            </div>
+            <div>
+                <h1>#{{ tag }}</h1>
+                <p>{{ posts|length }} post{% if posts|length != 1 %}s{% endif %}</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Posts -->
+    <div class="hashtag-posts">
+        {% if posts %}
+            {% for post in posts %}
+            <article class="post-card">
+                <div class="post-header">
+                    <div class="post-author">
+                        <a href="{{ url_for('profile', username=post.username) }}" style="text-decoration:none;">
+                            <div class="author-avatar">{{ post.username[0].upper() }}</div>
+                        </a>
+                        <div class="author-info">
+                            <a href="{{ url_for('profile', username=post.username) }}" style="text-decoration:none; color:inherit;">
+                                <strong>{{ post.username }}</strong>
+                            </a>
+                            <span>@{{ post.username|lower }} · {{ post.time_ago }}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="post-content">
+                    {% if post.content %}
+                    <p>{{ post.content }}</p>
+                    {% endif %}
+                    
+                    {% if post.media_url %}
+                    <div class="post-media">
+                        {% if post.media_type == 'video' %}
+                        <video controls class="post-video">
+                            <source src="{{ post.media_url }}">
+                        </video>
+                        {% else %}
+                        <img src="{{ post.media_url }}" alt="Post media" class="post-image">
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="post-footer">
+                    <div class="post-stats">
+                        <span id="like-count-{{ post.id }}"><strong>{{ post.like_count }}</strong> likes</span>
+                        <span><strong>{{ post.comment_count }}</strong> comments</span>
+                    </div>
+                    <div class="post-actions">
+                        <button class="action-btn {% if post.user_liked %}liked{% endif %}" onclick="likePost({{ post.id }}, this)">
+                            <i class="fa-{% if post.user_liked %}solid{% else %}regular{% endif %} fa-heart"
+                               {% if post.user_liked %}style="color: #ef4444;"{% endif %}></i>
+                        </button>
+                        <button class="action-btn">
+                            <i class="fa-regular fa-comment"></i>
+                        </button>
+                        <button class="action-btn" onclick="sharePost({{ post.id }})">
+                            <i class="fa-regular fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fa-solid fa-hashtag"></i>
+            </div>
+            <h3>No posts with #{{ tag }}</h3>
+            <p>Be the first to post with this hashtag!</p>
+            <button class="btn-primary" onclick="openComposer()">Create Post</button>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function likePost(postId, btn) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/post/' + postId + '/like', true);
+    
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            var data = JSON.parse(xhr.responseText);
+            var icon = btn.querySelector('i');
+            var countEl = document.getElementById('like-count-' + postId);
+            
+            if (data.status === 'liked') {
+                icon.className = 'fa-solid fa-heart';
+                icon.style.color = '#ef4444';
+                btn.classList.add('liked');
+            } else {
+                icon.className = 'fa-regular fa-heart';
+                icon.style.color = '';
+                btn.classList.remove('liked');
+            }
+            
+            countEl.innerHTML = '<strong>' + data.count + '</strong> likes';
+        }
+    };
+    
+    xhr.send();
+}
+
+function sharePost(postId) {
+    var url = window.location.origin + '/feed#post-' + postId;
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(function() {
+            alert('Link copied!');
+        });
+    } else {
+        prompt('Copy this link:', url);
+    }
+}
+</script>
+
+{% endblock %}

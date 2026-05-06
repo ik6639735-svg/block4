@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+{% block title %}{{ profile_user.username }} | Block4{% endblock %}
+{% block content %}
+
+<div class="profile-page">
+    
+    <!-- Profile Header -->
+    <div class="profile-header">
+        <div class="profile-cover">
+            <div class="cover-gradient"></div>
+        </div>
+        
+        <div class="profile-info-section">
+            <div class="profile-avatar-wrapper">
+                {% if profile_user.avatar %}
+                <img src="{{ profile_user.avatar }}" alt="{{ profile_user.username }}" class="profile-avatar-img">
+                {% else %}
+                <div class="profile-avatar-large">{{ profile_user.username[0].upper() }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="profile-details">
+                <div class="profile-name-row">
+                    <h1>{{ profile_user.username }}</h1>
+                    <span class="profile-handle">@{{ profile_user.username|lower }}</span>
+                </div>
+                
+                {% if profile_user.bio %}
+                <p class="profile-bio">{{ profile_user.bio }}</p>
+                {% else %}
+                <p class="profile-bio" style="color: var(--text-muted);">No bio yet</p>
+                {% endif %}
+                
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <strong>{{ posts|length }}</strong>
+                        <span>Posts</span>
+                    </div>
+                    <div class="stat-item">
+                        <strong>{{ followers }}</strong>
+                        <span>Followers</span>
+                    </div>
+                    <div class="stat-item">
+                        <strong>{{ following }}</strong>
+                        <span>Following</span>
+                    </div>
+                </div>
+                
+                <div class="profile-actions">
+                    {% if is_own_profile %}
+                    <button class="btn-edit-profile" onclick="openEditProfile()">
+                        <i class="fa-solid fa-pen"></i>
+                        <span>Edit Profile</span>
+                    </button>
+                    {% else %}
+                    <button class="btn-follow-profile" id="followBtn" onclick="toggleFollow({{ profile_user.id }})">
+                        {% if is_following %}
+                        <i class="fa-solid fa-user-check"></i>
+                        <span>Following</span>
+                        {% else %}
+                        <i class="fa-solid fa-user-plus"></i>
+                        <span>Follow</span>
+                        {% endif %}
+                    </button>
+                    <a href="{{ url_for('chat', user_id=profile_user.id) }}" class="btn-message-profile">
+                        <i class="fa-solid fa-envelope"></i>
+                        <span>Message</span>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Profile Posts -->
+    <div class="profile-content">
+        <div class="profile-tabs">
+            <button class="tab-btn active" onclick="switchTab('posts', this)">
+                <i class="fa-solid fa-grid"></i>
+                <span>Posts</span>
+            </button>
+            <button class="tab-btn" onclick="switchTab('media', this)">
+                <i class="fa-solid fa-image"></i>
+                <span>Media</span>
+            </button>
+            <button class="tab-btn" onclick="switchTab('likes', this)">
+                <i class="fa-solid fa-heart"></i>
+                <span>Likes</span>
+            </button>
+        </div>
+        
+        <div class="profile-posts" id="postsTab">
+            {% if posts %}
+                {% for post in posts %}
+                <article class="post-card">
+                    <div class="post-header">
+                        <div class="post-author">
+                            <div class="author-avatar">{{ profile_user.username[0].upper() }}</div>
+                            <div class="author-info">
+                                <strong>{{ profile_user.username }}</strong>
+                                <span>@{{ profile_user.username|lower }} · {{ post.time_ago }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="post-content">
+                        {% if post.content %}
+                        <p>{{ post.content|linkify_hashtags|safe }}</p>
+                        {% endif %}
+                        
+                        {% if post.media_url %}
+                        <div class="post-media">
+                            {% if post.media_type == 'video' %}
+                            <video controls class="post-video">
+                                <source src="{{ post.media_url }}">
+                            </video>
+                            {% else %}
+                            <img src="{{ post.media_url }}" alt="Post media" class="post-image">
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="post-footer">
+                        <div class="post-stats">
+                            <span><strong>{{ post.like_count }}</strong> likes</span>
+                            <span><strong>{{ post.comment_count }}</strong> comments</span>
+                        </div>
+                    </div>
+                </article>
+                {% endfor %}
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fa-solid fa-camera"></i>
+                </div>
+                {% if is_own_profile %}
+                <h3>No posts yet</h3>
+                <p>Share your first post with the community!</p>
+                <button class="btn-primary" onclick="openComposer()">Create Post</button>
+                {% else %}
+                <h3>No posts yet</h3>
+                <p>{{ profile_user.username }} hasn't posted anything yet.</p>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="profile-posts" id="mediaTab" style="display:none;">
+            <div class="media-grid">
+                {% for post in posts %}
+                    {% if post.media_url %}
+                    <div class="media-grid-item">
+                        {% if post.media_type == 'video' %}
+                        <video src="{{ post.media_url }}" class="media-thumb"></video>
+                        <div class="media-overlay">
+                            <i class="fa-solid fa-play"></i>
+                        </div>
+                        {% else %}
+                        <img src="{{ post.media_url }}" alt="" class="media-thumb">
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="profile-posts" id="likesTab" style="display:none;">
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fa-solid fa-heart"></i>
+                </div>
+                <h3>Liked posts</h3>
+                <p>Posts that {{ profile_user.username }} liked will appear here.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- EDIT PROFILE MODAL -->
+{% if is_own_profile %}
+<div class="modal-overlay" id="editProfileModal" onclick="closeEditProfile(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h3>Edit Profile</h3>
+            <button class="close-btn" onclick="closeEditProfile()">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <form action="{{ url_for('update_profile') }}" method="POST" enctype="multipart/form-data">
+            <div class="modal-body">
+                <div style="margin-bottom: 20px;">
+                    <label style="display:block; color:var(--text-secondary); font-size:14px; margin-bottom:8px;">Profile Picture</label>
+                    <input type="file" name="avatar" accept="image/*" 
+                           style="width:100%; padding:12px; background:var(--bg-elevated); border:1px solid var(--border); border-radius:var(--radius-md); color:var(--text-primary); font-size:14px;">
+                </div>
+                
+                <div>
+                    <label style="display:block; color:var(--text-secondary); font-size:14px; margin-bottom:8px;">Bio</label>
+                    <textarea name="bio" placeholder="Tell us about yourself..." 
+                              style="width:100%; min-height:120px; padding:14px; background:var(--bg-elevated); border:1px solid var(--border); border-radius:var(--radius-md); color:var(--text-primary); font-size:15px; resize:none; outline:none;">{{ profile_user.bio }}</textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <span></span>
+                <button type="submit" class="btn-primary">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+<script>
+// Follow / Unfollow
+async function toggleFollow(userId) {
+    try {
+        var res = await fetch('/api/follow/' + userId, { method: 'POST' });
+        var data = await res.json();
+        var btn = document.getElementById('followBtn');
+        
+        if (data.status === 'followed') {
+            btn.innerHTML = '<i class="fa-solid fa-user-check"></i><span>Following</span>';
+            btn.classList.add('following');
+        } else {
+            btn.innerHTML = '<i class="fa-solid fa-user-plus"></i><span>Follow</span>';
+            btn.classList.remove('following');
+        }
+        
+        location.reload();
+    } catch(err) {
+        console.log('Follow error:', err);
+    }
+}
+
+// Edit Profile Modal
+function openEditProfile() {
+    document.getElementById('editProfileModal').classList.add('active');
+}
+
+function closeEditProfile(e) {
+    if (e && e.target !== e.currentTarget) return;
+    document.getElementById('editProfileModal').classList.remove('active');
+}
+
+// Tab Switching
+function switchTab(tab, btn) {
+    // Hide all tabs
+    document.getElementById('postsTab').style.display = 'none';
+    document.getElementById('mediaTab').style.display = 'none';
+    document.getElementById('likesTab').style.display = 'none';
+    
+    // Remove active from all buttons
+    var buttons = document.querySelectorAll('.tab-btn');
+    for (var i = 0; i < buttons.length; i++) {
+        buttons[i].classList.remove('active');
+    }
+    
+    // Show selected tab
+    document.getElementById(tab + 'Tab').style.display = 'block';
+    btn.classList.add('active');
+}
+</script>
+
+{% endblock %}

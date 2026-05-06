@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Sign Up | Block4{% endblock %}
+{% block content %}
+
+<div class="auth-page">
+    <div class="auth-container">
+        <div class="auth-header">
+            <div class="auth-logo">
+                <div class="logo-icon large">B4</div>
+            </div>
+            <h1>Create Account</h1>
+            <p>Start your journey with Block4 today</p>
+        </div>
+        
+        <form class="auth-form" method="POST">
+            <div class="input-group">
+                <i class="fa-solid fa-user"></i>
+                <input type="text" name="username" placeholder="Username" required minlength="3">
+            </div>
+            
+            <div class="input-group">
+                <i class="fa-solid fa-envelope"></i>
+                <input type="email" name="email" placeholder="Email address" required>
+            </div>
+            
+            <div class="input-group">
+                <i class="fa-solid fa-lock"></i>
+                <input type="password" name="password" placeholder="Password (min 6 chars)" required minlength="6">
+            </div>
+            
+            <label class="checkbox-wrapper terms">
+                <input type="checkbox" required>
+                <span class="checkmark"></span>
+                I agree to the <a href="{{ url_for('terms_page') }}">Terms</a> and <a href="{{ url_for('privacy_page') }}">Privacy Policy</a>
+            </label>
+            
+            <button type="submit" class="btn-primary">
+                Create Account
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </form>
+        
+        <div class="auth-divider">
+            <span>or sign up with</span>
+        </div>
+        
+        <div class="social-login">
+            <a href="{{ url_for('google_login') }}" class="btn-social" title="Sign up with Google">
+                <i class="fa-brands fa-google"></i>
+            </a>
+            <a href="{{ url_for('apple_login') }}" class="btn-social" title="Sign up with Apple">
+                <i class="fa-brands fa-apple"></i>
+            </a>
+            <a href="{{ url_for('twitter_login') }}" class="btn-social" title="Sign up with Twitter">
+                <i class="fa-brands fa-twitter"></i>
+            </a>
+        </div>
+        
+        <p class="auth-footer">
+            Already have an account? <a href="{{ url_for('login') }}">Sign in</a>
+        </p>
+    </div>
+    
+    <div class="auth-visual">
+        <div class="visual-content">
+            <div class="floating-cards">
+                <div class="float-card card-1">
+                    <i class="fa-solid fa-users"></i>
+                    <span>10K+</span>
+                </div>
+                <div class="float-card card-2">
+                    <i class="fa-solid fa-star"></i>
+                    <span>4.9 Rating</span>
+                </div>
+                <div class="float-card card-3">
+                    <i class="fa-solid fa-shield"></i>
+                    <span>Secure</span>
+                </div>
+            </div>
+            <h2>Join the<br><span class="gold">Revolution.</span></h2>
+            <p>Connect with traders, access AI-powered insights, and build your brand.</p>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
