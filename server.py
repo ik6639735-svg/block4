@@ -262,7 +262,7 @@ def extract_hashtags(text):
 
 I can see it: **https://block4.onrender.com**
 
-That is absolutely amazing! Your Block4 platform is now accessible to the entire world! 🚀
+That is absolutely amazing! Your Block4 platform is now accessible to the entire world! 
 
 ---
 
@@ -611,7 +611,7 @@ BOS = Price breaks a **previous swing high/low** in the SAME direction as the tr
 3. Enter at the Order Block that caused the BOS
 4. Target the next swing point
 
-**BOS is a CONTINUATION signal!** ✅
+**BOS is a CONTINUATION signal!** 
 
 Want to know about CHoCH (reversal signal) too? 🎯"""
 
@@ -712,7 +712,7 @@ Fibonacci levels help identify potential **pullback zones**.
 • Always wait for the candle to CLOSE before entering
 • Combine with volume for confirmation
 
-Context matters more than the pattern itself! 📍"""
+Context matters more than the pattern itself! """
 
     def explain_indicators(self):
         return """📊 **Popular Trading Indicators:**
@@ -1445,7 +1445,7 @@ def login():
         if user:
             session['user_id'] = user['id']
             session['username'] = user['username']
-            flash(f"Welcome back, {user['username']}! 🎉", "success")
+            flash(f"Welcome back, {user['username']}! ", "success")
             return redirect(url_for('feed'))
         flash("Invalid email or password", "error")
     
@@ -2414,9 +2414,9 @@ if __name__ == "__main__":
     debug = os.environ.get("FLASK_ENV") != "production"
     
     print("\n" + "=" * 50)
-    print("🚀 QHIVE - Smart Traders. Stronger Together.")
+    print("QHIVE - Smart Traders. Stronger Together.")
     print("=" * 50)
-    print(f"📍 URL: http://127.0.0.1:{port}")
-    print("✅ All features are REAL!")
+    print("URL: http://127.0.0.1:" + str(port))
+    print("All features are REAL!")
     print("=" * 50 + "\n")
     app.run(debug=debug, host="0.0.0.0", port=port)
