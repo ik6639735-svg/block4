@@ -307,15 +307,15 @@ def init_db():
 
 Now let's make your AI much smarter with more topics!
 
-### Replace your entire `Block4Brain` class in `server.py`:
+### Replace your entire `QHiveBrain` class in `server.py`:
 
 ```python
 # ================================
-# 🧠 BLOCK4 AI BRAIN v2.0
+# 🧠 QHiveBrain v2.0
 # ================================
-class Block4Brain:
+class QHiveBrain:
     def __init__(self):
-        self.name = "Block4 AI"
+        self.name = "QHive AI"
         self.knowledge = {
             'trading': {
                 'smc': self.explain_smc,
@@ -2414,7 +2414,7 @@ if __name__ == "__main__":
     debug = os.environ.get("FLASK_ENV") != "production"
     
     print("\n" + "=" * 50)
-    print("🚀 BLOCK4 FULL PLATFORM STARTING...")
+    print("🚀 QHIVE - Smart Traders. Stronger Together.")
     print("=" * 50)
     print(f"📍 URL: http://127.0.0.1:{port}")
     print("✅ All features are REAL!")

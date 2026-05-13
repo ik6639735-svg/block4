@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}#{{ tag }} | Block4{% endblock %}
+{% block title %}#{{ tag }} | QHive{% endblock %}
 {% block content %}
 
 <div class="hashtag-page">
@@ -38,8 +38,8 @@
                 
                 <div class="post-content">
                     {% if post.content %}
-                    <p>{{ post.content }}</p>
-                    {% endif %}
+                    <p>{{ post.content|linkify_hashtags|safe }}</p>
+                     {% endif %}
                     
                     {% if post.media_url %}
                     <div class="post-media">

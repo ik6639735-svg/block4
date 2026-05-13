@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Settings | Block4{% endblock %}
+{% block title %}Settings | QHive{% endblock %}
 {% block content %}
 
 <div class="settings-page">
@@ -269,7 +269,7 @@
             <!-- APPEARANCE -->
             <div class="settings-section" id="appearanceSection" style="display:none;">
                 <h2>Appearance</h2>
-                <p class="settings-desc">Customize how Block4 looks for you</p>
+                <p class="settings-desc">Customize how QHive looks for you</p>
                 
                 <div class="theme-selector">
                     <h3>Theme</h3>
@@ -366,16 +366,16 @@
             
             <!-- ABOUT -->
             <div class="settings-section" id="aboutSection" style="display:none;">
-                <h2>About Block4</h2>
+                <h2>About QHive</h2>
                 <p class="settings-desc">Learn more about the platform</p>
                 
                 <div class="about-card">
                     <div class="about-logo">
-                        <div class="logo-icon large">B4</div>
+                        <div class="logo-icon large">QH</div>
                     </div>
-                    <h3>Block4</h3>
+                    <h3>QHive</h3>
                     <p class="about-version">Version 1.0.0</p>
-                    <p class="about-desc">Block4 is a premium social trading platform built for traders, creators, and innovators. Connect, share, and grow together.</p>
+                    <p class="about-desc">QHive is a premium social trading platform built for traders, creators, and innovators. Connect, share, and grow together.</p>
                     
                     <div class="about-links">
                         <a href="#" class="about-link">
@@ -392,7 +392,7 @@
                         </a>
                     </div>
                     
-                    <p class="about-copyright">© 2026 Block4. All rights reserved.</p>
+                    <p class="about-copyright">© 2026 QHive. All rights reserved.</p>
                 </div>
             </div>
         </div>
@@ -468,10 +468,10 @@ function selectTheme(theme, el) {
     el.classList.add('active');
     
     document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('block4-theme', theme);
+    localStorage.setItem('QHive-theme', theme);
 }
 
-var savedTheme = localStorage.getItem('block4-theme');
+var savedTheme = localStorage.getItem('QHive-theme');
 if (savedTheme) {
     document.documentElement.setAttribute('data-theme', savedTheme);
     
