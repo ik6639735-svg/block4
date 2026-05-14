@@ -1,21 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- THEME LOADER - Must be first -->
     <script>
-    var savedTheme = localStorage.getItem('QHive-theme');
-    if (savedTheme) {
-        document.documentElement.setAttribute('data-theme', savedTheme);
+    var t = localStorage.getItem('QHive-theme');
+    if (t) {
+        document.documentElement.setAttribute('data-theme', t);
     }
     </script>
-    <meta charset="UTF-8">
-   <script>
-    var savedTheme = localStorage.getItem('block4-theme');
-    if (savedTheme) {
-        document.documentElement.setAttribute('data-theme', savedTheme);
-    }
-    </script>
-    <meta charset="UTF-8">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>{% block title %}QHive{% endblock %}</title>
