@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- THEME LOADER - Must be first -->
+    <script>
+    var savedTheme = localStorage.getItem('QHive-theme');
+    if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    }
+    </script>
+    <meta charset="UTF-8">
    <script>
     var savedTheme = localStorage.getItem('block4-theme');
     if (savedTheme) {
@@ -40,10 +48,10 @@
                 <i class="fa-solid fa-house"></i>
                 <span>Home</span>
             </a>
-            <a href="{{ url_for('ai') }}" class="nav-link {% if request.endpoint == 'ai' %}active{% endif %}">
-                <i class="fa-solid fa-sparkles"></i>
-                <span>AI Assistant</span>
-            </a>
+          <a href="{{ url_for('ai') }}" class="nav-link {% if request.endpoint == 'ai' %}active{% endif %}">
+    <i class="fa-solid fa-robot"></i>
+    <span>AI Assistant</span>
+</a>
             <a href="{{ url_for('explore') }}" class="nav-link {% if request.endpoint == 'explore' %}active{% endif %}">
                 <i class="fa-solid fa-compass"></i>
                 <span>Explore</span>
