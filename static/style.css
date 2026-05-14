@@ -129,6 +129,143 @@ a {
 }
 
 /* ============================================
+   QHIVE LOGO
+============================================= */
+.qhive-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.qhive-logo-icon {
+    width: 38px;
+    height: 38px;
+    background: var(--gold);
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.qhive-logo-icon::before {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: rgba(0, 0, 0, 0.2);
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.qhive-logo-icon::after {
+    content: 'Q';
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    color: black;
+    position: relative;
+    z-index: 1;
+}
+
+.qhive-logo-text {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: 0.5px;
+}
+
+.qhive-logo-text span {
+    color: var(--gold);
+}
+
+.qhive-ai-tag {
+    background: var(--gold);
+    color: black;
+    font-size: 9px;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 4px;
+    letter-spacing: 1px;
+    margin-left: 2px;
+}
+
+/* ============================================
+   DEEP 3D BACKGROUND EFFECT
+============================================= */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+        radial-gradient(ellipse at 20% 50%, rgba(240, 185, 11, 0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(14, 203, 129, 0.04) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 80%, rgba(30, 144, 255, 0.03) 0%, transparent 50%),
+        linear-gradient(180deg, #08090c 0%, #0a0b0e 50%, #0c0d11 100%);
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* Card Depth Effect */
+.post-card,
+.sidebar-card,
+.create-card {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 1px rgba(240, 185, 11, 0.05);
+}
+
+.post-card:hover,
+.sidebar-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 0 1px rgba(240, 185, 11, 0.1);
+}
+
+/* Sidebar Depth */
+.sidebar {
+    box-shadow: 2px 0 20px rgba(0, 0, 0, 0.5);
+}
+
+/* Glass Effect on Cards */
+.create-card,
+.sidebar-card {
+    background: linear-gradient(145deg, rgba(24, 26, 32, 0.9), rgba(20, 21, 25, 0.95));
+    backdrop-filter: blur(10px);
+}
+
+/* Gold Glow Effects */
+.btn-create,
+.btn-primary,
+.mobile-create {
+    box-shadow: 0 4px 20px rgba(240, 185, 11, 0.25);
+}
+
+.btn-create:hover,
+.btn-primary:hover {
+    box-shadow: 0 6px 30px rgba(240, 185, 11, 0.35);
+}
+
+/* Navigation Active Glow */
+.nav-link.active {
+    box-shadow: inset 0 0 20px rgba(240, 185, 11, 0.05);
+}
+
+/* Avatar Glow */
+.user-avatar,
+.author-avatar {
+    box-shadow: 0 2px 10px rgba(240, 185, 11, 0.15);
+}
+
+/* Story Card Glow */
+.story-card:hover {
+    box-shadow: 0 4px 15px rgba(240, 185, 11, 0.2);
+}
+
+/* ============================================
    ANIMATED BACKGROUND
 ============================================= */
 .bg-orbs {
