@@ -209,6 +209,15 @@ def init_db():
 
 init_db()
 
+# Fix database columns
+try:
+    conn = sqlite3.connect(DB_PATH)
+    conn.execute("ALTER TABLE users ADD COLUMN is_verified INTEGER DEFAULT 0")
+    conn.commit()
+    conn.close()
+except:
+    pass
+
 
 # ================================
 # HELPERS
@@ -650,7 +659,7 @@ def vote_poll(poll_id):
 @login_required
 def profile(username):
     db = get_db()
-    user = db.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
+    user = db.execute("SELECT * FROM users WHERE LOWER(username) = LOWER(?)", (username,)).fetchone()
     if not user:
         flash("User not found", "error")
         return redirect(url_for('feed'))

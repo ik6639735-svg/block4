@@ -9,7 +9,7 @@
         <div class="ai-header">
             <div class="ai-brand">
                 <div class="ai-icon">
-                    <i class="fa-solid fa-sparkles"></i>
+                    <i class="fa-solid fa-robot"></i>
                 </div>
                 <div>
                     <h1>QHive AI</h1>
@@ -19,9 +19,6 @@
             <div class="ai-actions">
                 <button class="icon-btn" onclick="clearChat()" title="Clear History">
                     <i class="fa-solid fa-trash"></i>
-                </button>
-                <button class="icon-btn" title="Settings">
-                    <i class="fa-solid fa-gear"></i>
                 </button>
             </div>
         </div>
@@ -34,8 +31,8 @@
                 <div class="welcome-icon">
                     <i class="fa-solid fa-robot"></i>
                 </div>
-                <h2>Hello, {{ session.username }}! 👋</h2>
-                <p>I'm your AI assistant. I can help you with trading strategies, content creation, and much more.</p>
+                <h2>Hello, {{ session.username }}!</h2>
+                <p>I'm your AI trading assistant. I can help you with trading strategies, content creation, and much more.</p>
                 
                 <div class="prompt-grid">
                     <button class="prompt-card" onclick="sendQuick('What is Smart Money Concepts?')">
@@ -47,11 +44,11 @@
                         <span>Create a Caption</span>
                     </button>
                     <button class="prompt-card" onclick="sendQuick('How do I manage risk properly?')">
-                        <i class="fa-solid fa-shield"></i>
+                        <i class="fa-solid fa-shield-halved"></i>
                         <span>Risk Management</span>
                     </button>
                     <button class="prompt-card" onclick="sendQuick('How to handle trading losses?')">
-                        <i class="fa-solid fa-heart"></i>
+                        <i class="fa-solid fa-brain"></i>
                         <span>Trading Psychology</span>
                     </button>
                 </div>
@@ -61,7 +58,7 @@
                 <div class="chat-message {% if msg.role == 'user' %}user{% else %}assistant{% endif %}">
                     {% if msg.role == 'assistant' %}
                     <div class="message-avatar">
-                        <i class="fa-solid fa-sparkles"></i>
+                        <i class="fa-solid fa-robot"></i>
                     </div>
                     {% endif %}
                     <div class="message-bubble">
@@ -90,104 +87,87 @@
                     </button>
                 </div>
             </form>
-            <p class="input-hint">Block4 AI can make mistakes. Verify important information.</p>
+            <p class="input-hint">QHive AI can make mistakes. Verify important information.</p>
         </div>
     </div>
 </div>
 
 <script>
-const chatWindow = document.getElementById('chatWindow');
-const messageInput = document.getElementById('messageInput');
-const sendBtn = document.getElementById('sendBtn');
+var chatWindow = document.getElementById('chatWindow');
+var messageInput = document.getElementById('messageInput');
+var sendBtn = document.getElementById('sendBtn');
 
-async function sendMessage(e) {
+function sendMessage(e) {
     e.preventDefault();
-    const message = messageInput.value.trim();
+    var message = messageInput.value.trim();
     if (!message) return;
     
-    // Remove welcome screen
-    const welcome = document.querySelector('.chat-welcome');
+    var welcome = document.querySelector('.chat-welcome');
     if (welcome) welcome.remove();
     
-    // Add user message
     addMessage(message, 'user');
     messageInput.value = '';
-    
-    // Disable input
     messageInput.disabled = true;
     sendBtn.disabled = true;
     
-    // Add typing indicator
-    const typingId = addTyping();
+    var typingId = addTyping();
     
-    try {
-        const res = await fetch('/api/ai/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message })
-        });
-        const data = await res.json();
-        
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/ai/chat', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onload = function() {
         removeTyping(typingId);
-        addMessage(data.reply, 'assistant');
-    } catch (err) {
+        if (xhr.status === 200) {
+            var data = JSON.parse(xhr.responseText);
+            addMessage(data.reply, 'assistant');
+        } else {
+            addMessage('Sorry, something went wrong. Please try again.', 'assistant');
+        }
+        messageInput.disabled = false;
+        sendBtn.disabled = false;
+        messageInput.focus();
+    };
+    xhr.onerror = function() {
         removeTyping(typingId);
-        addMessage('Sorry, something went wrong. Please try again.', 'assistant');
-    }
-    
-    messageInput.disabled = false;
-    sendBtn.disabled = false;
-    messageInput.focus();
+        addMessage('Network error. Please check your connection.', 'assistant');
+        messageInput.disabled = false;
+        sendBtn.disabled = false;
+    };
+    xhr.send(JSON.stringify({ message: message }));
 }
 
 function addMessage(text, role) {
-    const div = document.createElement('div');
-    div.className = `chat-message ${role}`;
-    
-    const avatar = role === 'user' 
-        ? `<div class="message-avatar user">{{ session.username[0].upper() }}</div>`
-        : `<div class="message-avatar"><i class="fa-solid fa-sparkles"></i></div>`;
-    
-    const formatted = formatText(text);
-    
-    div.innerHTML = `
-        ${role === 'assistant' ? avatar : ''}
-        <div class="message-bubble">
-            <div class="message-text">${formatted}</div>
-        </div>
-        ${role === 'user' ? avatar : ''}
-    `;
-    
+    var div = document.createElement('div');
+    div.className = 'chat-message ' + role;
+    var avatar = role === 'user'
+        ? '<div class="message-avatar user">{{ session.username[0].upper() }}</div>'
+        : '<div class="message-avatar"><i class="fa-solid fa-robot"></i></div>';
+    var formatted = formatText(text);
+    div.innerHTML = (role === 'assistant' ? avatar : '') +
+        '<div class="message-bubble"><div class="message-text">' + formatted + '</div></div>' +
+        (role === 'user' ? avatar : '');
     chatWindow.appendChild(div);
     scrollToBottom();
 }
 
 function formatText(text) {
-    return text
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\n/g, '<br>');
+    return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
 }
 
 function addTyping() {
-    const id = 'typing-' + Date.now();
-    const div = document.createElement('div');
+    var id = 'typing-' + Date.now();
+    var div = document.createElement('div');
     div.id = id;
     div.className = 'chat-message assistant';
-    div.innerHTML = `
-        <div class="message-avatar"><i class="fa-solid fa-sparkles"></i></div>
-        <div class="message-bubble typing">
-            <div class="typing-dots">
-                <span></span><span></span><span></span>
-            </div>
-        </div>
-    `;
+    div.innerHTML = '<div class="message-avatar"><i class="fa-solid fa-robot"></i></div><div class="message-bubble typing"><div class="typing-dots"><span></span><span></span><span></span></div></div>';
     chatWindow.appendChild(div);
     scrollToBottom();
     return id;
 }
 
 function removeTyping(id) {
-    document.getElementById(id)?.remove();
+    var el = document.getElementById(id);
+    if (el) el.remove();
 }
 
 function scrollToBottom() {
@@ -199,10 +179,12 @@ function sendQuick(text) {
     document.getElementById('chatForm').dispatchEvent(new Event('submit'));
 }
 
-async function clearChat() {
+function clearChat() {
     if (!confirm('Clear all chat history?')) return;
-    await fetch('/api/ai/clear', { method: 'POST' });
-    location.reload();
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/ai/clear', true);
+    xhr.onload = function() { window.location.reload(); };
+    xhr.send();
 }
 
 scrollToBottom();
