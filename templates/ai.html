@@ -74,36 +74,39 @@
             {% endif %}
         </div>
         
-<!-- Input Area -->
-<div class="chat-input-area">
-    <form id="chatForm" onsubmit="sendMessage(event)">
-        <div class="input-wrapper">
-            <button type="button" class="attach-btn" onclick="document.getElementById('aiFileInput').click()">
-                <i class="fa-solid fa-paperclip"></i>
-            </button>
-            <input type="file" id="aiFileInput" accept="image/*" style="display:none;" onchange="previewAiFile(this)">
-            <input type="text" id="messageInput" placeholder="Ask me anything..." autocomplete="off">
-            <button type="submit" class="send-btn" id="sendBtn">
-                <i class="fa-solid fa-arrow-up"></i>
-            </button>
-        </div>
-    </form>
-    <div id="aiFilePreview" style="display:none; padding:8px 16px;">
-        <div style="display:flex; align-items:center; gap:10px; background:var(--bg-elevated); padding:8px 12px; border-radius:var(--radius-md); border:1px solid var(--border);">
-            <img id="aiPreviewImg" src="" style="width:40px; height:40px; border-radius:8px; object-fit:cover;">
-            <span style="flex:1; font-size:13px; color:var(--text-secondary);">Image attached</span>
-            <button onclick="removeAiFile()" style="background:none; border:none; color:var(--red); cursor:pointer; font-size:16px;">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
+        <!-- Input Area -->
+        <div class="chat-input-area">
+            <form id="chatForm" onsubmit="sendMessage(event)">
+                <div class="input-wrapper">
+                    <button type="button" class="attach-btn" onclick="document.getElementById('aiFileInput').click()">
+                        <i class="fa-solid fa-paperclip"></i>
+                    </button>
+                    <input type="file" id="aiFileInput" accept="image/*" style="display:none;" onchange="previewAiFile(this)">
+                    <input type="text" id="messageInput" placeholder="Ask me anything..." autocomplete="off">
+                    <button type="submit" class="send-btn" id="sendBtn">
+                        <i class="fa-solid fa-arrow-up"></i>
+                    </button>
+                </div>
+            </form>
+            <div id="aiFilePreview" style="display:none; padding:8px 16px;">
+                <div style="display:flex; align-items:center; gap:10px; background:var(--bg-elevated); padding:8px 12px; border-radius:var(--radius-md); border:1px solid var(--border);">
+                    <img id="aiPreviewImg" src="" style="width:40px; height:40px; border-radius:8px; object-fit:cover;">
+                    <span style="flex:1; font-size:13px; color:var(--text-secondary);">Image attached</span>
+                    <button onclick="removeAiFile()" style="background:none; border:none; color:var(--red); cursor:pointer; font-size:16px;">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+            <p class="input-hint">QHive AI - Powered by advanced language models. Can make mistakes.</p>
         </div>
     </div>
-    <p class="input-hint">QHive AI - Powered by advanced language models. Can make mistakes.</p>
 </div>
 
 <script>
 var chatWindow = document.getElementById('chatWindow');
 var messageInput = document.getElementById('messageInput');
 var sendBtn = document.getElementById('sendBtn');
+var aiSelectedFile = null;
 
 function sendMessage(e) {
     e.preventDefault();
@@ -195,11 +198,6 @@ function clearChat() {
     xhr.send();
 }
 
-scrollToBottom();
-</script>
-// File attachment for AI
-var aiSelectedFile = null;
-
 function previewAiFile(input) {
     if (input.files && input.files[0]) {
         aiSelectedFile = input.files[0];
@@ -217,5 +215,8 @@ function removeAiFile() {
     document.getElementById('aiFilePreview').style.display = 'none';
     document.getElementById('aiFileInput').value = '';
 }
+
+scrollToBottom();
+</script>
 
 {% endblock %}
