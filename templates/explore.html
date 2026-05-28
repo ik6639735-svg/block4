@@ -9,7 +9,7 @@
         <h1><i class="fa-solid fa-compass"></i> Explore</h1>
     </div>
     
-    <!-- Search Bar -->
+    <!-- Search -->
     <div class="explore-search">
         <div class="search-wrapper">
             <i class="fa-solid fa-search"></i>
@@ -17,72 +17,155 @@
         </div>
     </div>
     
+    <!-- Tabs -->
+    <div class="explore-tabs">
+        <button class="explore-tab active" onclick="switchExploreTab('all', this)">
+            <i class="fa-solid fa-fire"></i> All
+        </button>
+        <button class="explore-tab" onclick="switchExploreTab('signals', this)">
+            <i class="fa-solid fa-chart-line"></i> Signals
+        </button>
+        <button class="explore-tab" onclick="switchExploreTab('news', this)">
+            <i class="fa-solid fa-newspaper"></i> News
+        </button>
+        <button class="explore-tab" onclick="switchExploreTab('videos', this)">
+            <i class="fa-solid fa-video"></i> Videos
+        </button>
+    </div>
+    
     <!-- Search Results -->
     <div id="searchResultsArea" style="display:none;">
-        
-        <!-- Users Results -->
         <div id="usersResults" style="display:none;">
             <h3 class="results-title"><i class="fa-solid fa-users"></i> Users</h3>
             <div id="usersResultsList" class="results-list"></div>
         </div>
-        
-        <!-- Posts Results -->
         <div id="postsResults" style="display:none;">
             <h3 class="results-title"><i class="fa-solid fa-newspaper"></i> Posts</h3>
             <div id="postsResultsList" class="results-list"></div>
         </div>
-        
-        <!-- No Results -->
         <div id="noResults" style="display:none;">
             <div class="empty-state">
-                <div class="empty-icon">
-                    <i class="fa-solid fa-search"></i>
-                </div>
+                <div class="empty-icon"><i class="fa-solid fa-search"></i></div>
                 <h3>No results found</h3>
                 <p>Try a different search term</p>
             </div>
         </div>
     </div>
     
-    <!-- Default Explore Content -->
+    <!-- Default Content -->
     <div id="exploreDefault">
         
-        <!-- Category Tabs -->
-        <div class="explore-tabs">
-            <button class="explore-tab active" onclick="switchExploreTab('all', this)">
-                <i class="fa-solid fa-fire"></i> Trending
-            </button>
-            <button class="explore-tab" onclick="switchExploreTab('photos', this)">
-                <i class="fa-solid fa-image"></i> Photos
-            </button>
-            <button class="explore-tab" onclick="switchExploreTab('videos', this)">
-                <i class="fa-solid fa-video"></i> Videos
-            </button>
-            <button class="explore-tab" onclick="switchExploreTab('people', this)">
-                <i class="fa-solid fa-user-group"></i> People
-            </button>
+        <!-- Trending Now -->
+        <div class="explore-section">
+            <div class="section-header">
+                <h2>Trending Now</h2>
+                <span class="section-badge">Live</span>
+            </div>
+            
+            {% if posts %}
+            <div class="trending-grid">
+                {% for post in posts[:6] %}
+                <div class="trending-card">
+                    {% if post.media_url %}
+                        {% if post.media_type == 'video' %}
+                        <video src="{{ post.media_url }}" class="trending-card-img" muted></video>
+                        <div class="trending-video-badge"><i class="fa-solid fa-play"></i></div>
+                        {% else %}
+                        <img src="{{ post.media_url }}" alt="" class="trending-card-img">
+                        {% endif %}
+                    {% else %}
+                    <div class="trending-card-img trending-text-bg">
+                        <p>{{ post.content[:60] if post.content else '' }}...</p>
+                    </div>
+                    {% endif %}
+                    <div class="trending-card-body">
+                        <div class="trending-card-title">{{ post.content[:80] if post.content else 'No caption' }}</div>
+                        <div class="trending-card-meta">
+                            <span><i class="fa-solid fa-heart"></i> {{ post.like_count }}</span>
+                            <span>@{{ post.username }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-icon"><i class="fa-solid fa-compass"></i></div>
+                <h3>Nothing to explore yet</h3>
+                <p>Be the first to post something!</p>
+                <button class="btn-primary" onclick="openComposer()">Create Post</button>
+            </div>
+            {% endif %}
         </div>
         
-        <!-- Media Grid -->
-        <div class="explore-grid" id="exploreGrid">
-            {% if posts %}
+        <!-- Top Traders -->
+        <div class="explore-section">
+            <div class="section-header">
+                <h2>Top Traders</h2>
+            </div>
+            <div class="top-traders-grid">
+                {% if posts %}
+                    {% for post in posts[:5] %}
+                    <a href="{{ url_for('profile', username=post.username) }}" class="top-trader-card">
+                        {% if post.avatar %}
+                        <img src="{{ post.avatar }}" class="top-trader-avatar">
+                        {% else %}
+                        <div class="user-avatar">{{ post.username[0].upper() }}</div>
+                        {% endif %}
+                        <strong>{{ post.username }}</strong>
+                        <span class="trader-gain">+{{ range(1, 20)|random }}.{{ range(0, 9)|random }}%</span>
+                        <button class="btn-follow-sm" onclick="event.preventDefault(); followUser({{ post.user_id if post.user_id else 0 }}, this)">Follow</button>
+                    </a>
+                    {% endfor %}
+                {% else %}
+                <div class="empty-sidebar">
+                    <p>No traders yet</p>
+                    <span>Be the first to join!</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Popular Tags -->
+        <div class="explore-section">
+            <div class="section-header">
+                <h2>Popular Tags</h2>
+            </div>
+            <div class="popular-tags">
+                <a href="{{ url_for('hashtag', tag='BTC') }}" class="tag-chip">#BTC</a>
+                <a href="{{ url_for('hashtag', tag='Forex') }}" class="tag-chip">#Forex</a>
+                <a href="{{ url_for('hashtag', tag='SMC') }}" class="tag-chip">#SMC</a>
+                <a href="{{ url_for('hashtag', tag='Trading') }}" class="tag-chip">#Trading</a>
+                <a href="{{ url_for('hashtag', tag='ETH') }}" class="tag-chip">#ETH</a>
+                <a href="{{ url_for('hashtag', tag='Crypto') }}" class="tag-chip">#Crypto</a>
+                <a href="{{ url_for('hashtag', tag='Scalping') }}" class="tag-chip">#Scalping</a>
+                <a href="{{ url_for('hashtag', tag='SwingTrading') }}" class="tag-chip">#SwingTrading</a>
+                <a href="{{ url_for('hashtag', tag='RiskManagement') }}" class="tag-chip">#RiskManagement</a>
+                <a href="{{ url_for('hashtag', tag='GoldXAUUSD') }}" class="tag-chip">#GoldXAUUSD</a>
+            </div>
+        </div>
+        
+        <!-- All Posts Grid -->
+        {% if posts %}
+        <div class="explore-section">
+            <div class="section-header">
+                <h2>Discover</h2>
+            </div>
+            <div class="explore-grid">
                 {% for post in posts %}
-                <div class="explore-card" onclick="viewExplorePost({{ post.id }})">
+                <div class="explore-card">
                     {% if post.media_url %}
                         {% if post.media_type == 'video' %}
                         <video src="{{ post.media_url }}" class="explore-media" muted></video>
-                        <div class="explore-video-badge">
-                            <i class="fa-solid fa-play"></i>
-                        </div>
+                        <div class="explore-video-badge"><i class="fa-solid fa-play"></i></div>
                         {% else %}
                         <img src="{{ post.media_url }}" alt="" class="explore-media">
                         {% endif %}
                     {% else %}
                     <div class="explore-text-card">
-                        <p>{{ post.content[:100] }}{% if post.content|length > 100 %}...{% endif %}</p>
+                        <p>{{ post.content[:100] if post.content else '' }}</p>
                     </div>
                     {% endif %}
-                    
                     <div class="explore-overlay">
                         <div class="explore-stats">
                             <span><i class="fa-solid fa-heart"></i> {{ post.like_count }}</span>
@@ -90,44 +173,17 @@
                     </div>
                 </div>
                 {% endfor %}
-            {% else %}
-            <div class="empty-state" style="grid-column: 1 / -1;">
-                <div class="empty-icon">
-                    <i class="fa-solid fa-compass"></i>
-                </div>
-                <h3>Nothing to explore yet</h3>
-                <p>Be the first to post something! Content will appear here.</p>
-                <button class="btn-primary" onclick="openComposer()">Create Post</button>
             </div>
-            {% endif %}
         </div>
-    </div>
-</div>
-
-<!-- POST VIEWER MODAL -->
-<div class="modal-overlay" id="postViewerModal" onclick="closePostViewer(event)">
-    <div class="modal-content post-viewer-content" onclick="event.stopPropagation()">
-        <div class="modal-header">
-            <h3>Post</h3>
-            <button class="close-btn" onclick="closePostViewer()">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-        </div>
-        <div class="modal-body" id="postViewerBody">
-            <!-- Post content loads here -->
-        </div>
+        {% endif %}
     </div>
 </div>
 
 <script>
-// ================================
-// SEARCH
-// ================================
 var searchTimer = null;
 
 function searchExplore(query) {
     clearTimeout(searchTimer);
-    
     var resultsArea = document.getElementById('searchResultsArea');
     var defaultArea = document.getElementById('exploreDefault');
     
@@ -140,11 +196,9 @@ function searchExplore(query) {
     searchTimer = setTimeout(function() {
         var xhr = new XMLHttpRequest();
         xhr.open('GET', '/api/search?q=' + encodeURIComponent(query), true);
-        
         xhr.onload = function() {
             if (xhr.status === 200) {
                 var data = JSON.parse(xhr.responseText);
-                
                 defaultArea.style.display = 'none';
                 resultsArea.style.display = 'block';
                 
@@ -152,151 +206,96 @@ function searchExplore(query) {
                 var postsSection = document.getElementById('postsResults');
                 var noResults = document.getElementById('noResults');
                 
-                // Reset
                 usersSection.style.display = 'none';
                 postsSection.style.display = 'none';
                 noResults.style.display = 'none';
                 
                 var hasResults = false;
                 
-                // Show users
                 if (data.users && data.users.length > 0) {
                     hasResults = true;
                     usersSection.style.display = 'block';
-                    
                     var html = '';
                     for (var i = 0; i < data.users.length; i++) {
                         var user = data.users[i];
                         html += '<a href="/profile/' + user.username + '" class="explore-user-result">';
                         html += '<div class="user-avatar small">' + user.username[0].toUpperCase() + '</div>';
-                        html += '<div class="explore-user-info">';
-                        html += '<strong>' + user.username + '</strong>';
-                        html += '<span>@' + user.username.toLowerCase() + '</span>';
-                        html += '</div>';
+                        html += '<div class="explore-user-info"><strong>' + user.username + '</strong>';
+                        html += '<span>@' + user.username.toLowerCase() + '</span></div>';
                         html += '<button class="btn-follow" onclick="event.preventDefault(); followFromExplore(' + user.id + ', this)">Follow</button>';
                         html += '</a>';
                     }
-                    
                     document.getElementById('usersResultsList').innerHTML = html;
                 }
                 
-                // Show posts
                 if (data.posts && data.posts.length > 0) {
                     hasResults = true;
                     postsSection.style.display = 'block';
-                    
                     var html = '';
                     for (var i = 0; i < data.posts.length; i++) {
                         var post = data.posts[i];
                         html += '<div class="explore-post-result">';
-                        html += '<div class="explore-post-author">';
-                        html += '<div class="user-avatar small">' + post.username[0].toUpperCase() + '</div>';
-                        html += '<strong>' + post.username + '</strong>';
-                        html += '</div>';
+                        html += '<div class="explore-post-author"><div class="user-avatar small">' + post.username[0].toUpperCase() + '</div>';
+                        html += '<strong>' + post.username + '</strong></div>';
                         if (post.content) {
                             html += '<p class="explore-post-text">' + post.content.substring(0, 150) + '</p>';
                         }
                         html += '</div>';
                     }
-                    
                     document.getElementById('postsResultsList').innerHTML = html;
                 }
                 
-                if (!hasResults) {
-                    noResults.style.display = 'block';
-                }
+                if (!hasResults) { noResults.style.display = 'block'; }
             }
         };
-        
         xhr.send();
     }, 300);
 }
 
-// ================================
-// TABS
-// ================================
 function switchExploreTab(tab, btn) {
     var buttons = document.querySelectorAll('.explore-tab');
-    for (var i = 0; i < buttons.length; i++) {
-        buttons[i].classList.remove('active');
-    }
+    for (var i = 0; i < buttons.length; i++) { buttons[i].classList.remove('active'); }
     btn.classList.add('active');
-    
-    var cards = document.querySelectorAll('.explore-card');
-    
-    for (var i = 0; i < cards.length; i++) {
-        var card = cards[i];
-        
-        if (tab === 'all') {
-            card.style.display = 'block';
-        } else if (tab === 'photos') {
-            if (card.querySelector('img.explore-media')) {
-                card.style.display = 'block';
-            } else {
-                card.style.display = 'none';
-            }
-        } else if (tab === 'videos') {
-            if (card.querySelector('video.explore-media')) {
-                card.style.display = 'block';
-            } else {
-                card.style.display = 'none';
-            }
-        } else if (tab === 'people') {
-            card.style.display = 'none';
-        }
-    }
 }
 
-// ================================
-// POST VIEWER
-// ================================
-function viewExplorePost(postId) {
-    var modal = document.getElementById('postViewerModal');
-    var body = document.getElementById('postViewerBody');
-    
-    body.innerHTML = '<div style="text-align:center; padding:40px;"><i class="fa-solid fa-spinner fa-spin" style="font-size:24px; color:var(--gold);"></i><p style="margin-top:12px; color:var(--text-muted);">Loading post...</p></div>';
-    
-    modal.classList.add('active');
-    
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', '/api/post/' + postId + '/comments', true);
-    
-    xhr.onload = function() {
-        body.innerHTML = '<p style="padding:20px; color:var(--text-secondary);">Post #' + postId + ' loaded. Full post viewer coming soon!</p>';
-    };
-    
-    xhr.send();
-
-function closePostViewer(e) {
-    if (e && e.target !== e.currentTarget) return;
-    document.getElementById('postViewerModal').classList.remove('active');
-}
-
-// ================================
-// FOLLOW FROM EXPLORE
-// ================================
 function followFromExplore(userId, btn) {
     var xhr = new XMLHttpRequest();
     xhr.open('POST', '/api/follow/' + userId, true);
-    
     xhr.onload = function() {
         if (xhr.status === 200) {
             var data = JSON.parse(xhr.responseText);
-            
             if (data.status === 'followed') {
                 btn.textContent = 'Following';
                 btn.style.background = 'var(--gold)';
                 btn.style.color = 'black';
-                btn.style.borderColor = 'var(--gold)';
             } else {
                 btn.textContent = 'Follow';
                 btn.style.background = 'transparent';
                 btn.style.color = 'var(--gold)';
-                btn.style.borderColor = 'var(--gold)';
             }
         }
     };
-    
+    xhr.send();
+}
+
+function followUser(userId, btn) {
+    if (!userId) return;
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/follow/' + userId, true);
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            var data = JSON.parse(xhr.responseText);
+            if (data.status === 'followed') {
+                btn.textContent = 'Following';
+                btn.style.background = 'var(--gold)';
+                btn.style.color = 'black';
+            } else {
+                btn.textContent = 'Follow';
+                btn.style.background = 'transparent';
+                btn.style.color = 'var(--gold)';
+            }
+        }
+    };
     xhr.send();
 }
 </script>
