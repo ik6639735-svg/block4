@@ -275,49 +275,42 @@ def extract_hashtags(text):
 # ================================
 GROQ_API_KEY = os.environ.get('GROQ_API_KEY', '')
 
+
 def get_ai_reply(message, username, history=None):
+    print("=== AI DEBUG ===")
+    print("GROQ_API_KEY exists: " + str(bool(GROQ_API_KEY)))
+    print("GROQ_API_KEY length: " + str(len(GROQ_API_KEY)))
+    
     if not GROQ_API_KEY:
+        print("NO API KEY - Using fallback")
         return fallback_ai(message, username)
     
     try:
+        print("Importing groq...")
         from groq import Groq
+        print("Groq imported successfully!")
+        
         client = Groq(api_key=GROQ_API_KEY)
+        print("Client created!")
         
         system_prompt = (
-            "You are QHive AI - the ultimate trading assistant for the QHive social trading platform. "
-            "Your personality: Friendly, professional, and encouraging. "
-            "You speak like a knowledgeable trading mentor. "
-            "You use clear language that beginners can understand. "
-            "You give detailed, actionable advice. "
-            "You use formatting with **bold** for important terms. "
-            "You organize information with bullet points and numbered lists. "
-            "Your expertise covers ALL aspects of trading (forex, crypto, stocks, commodities), "
-            "Smart Money Concepts (SMC): Order Blocks, FVGs, Liquidity, BOS, CHoCH, "
-            "Technical Analysis: Support/Resistance, Trend Analysis, Chart Patterns, "
-            "All indicators: RSI, MACD, Moving Averages, Bollinger Bands, Fibonacci, "
-            "Trading strategies: Scalping, Day Trading, Swing Trading, Position Trading, "
-            "Risk Management and Position Sizing, Trading Psychology and Mindset, "
-            "Cryptocurrency and DeFi, Gold (XAUUSD) trading, "
-            "Content creation for trading brands, Market analysis and news interpretation. "
-            "Rules: Always be helpful and thorough. Give practical, actionable advice. "
-            "Include examples when possible. Warn about risks when appropriate. "
-            "Never give specific financial advice (say this is educational, not financial advice). "
-            "If someone asks about something non-trading related, still try to help but mention you specialize in trading. "
-            "Keep responses focused and well-organized. Use markdown formatting for readability. "
-            "The user's name is " + username + ". Address them by name occasionally to be personal."
+            "You are QHive AI - a friendly trading assistant. "
+            "Be conversational, natural, and helpful. "
+            "When someone says hi or hello, greet them warmly by name and ask how you can help. "
+            "Keep greetings short and friendly like a real person. "
+            "You specialize in trading education but can chat about anything. "
+            "The user's name is " + username + "."
         )
-
+        
         messages = [{"role": "system", "content": system_prompt}]
         
         if history:
             for h in history[-10:]:
-                messages.append({
-                    "role": h['role'],
-                    "content": h['message']
-                })
+                messages.append({"role": h['role'], "content": h['message']})
         
         messages.append({"role": "user", "content": message})
         
+        print("Sending to Groq...")
         completion = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             messages=messages,
@@ -325,36 +318,13 @@ def get_ai_reply(message, username, history=None):
             max_tokens=2000,
         )
         
-        return completion.choices[0].message.content
+        reply = completion.choices[0].message.content
+        print("Got reply: " + reply[:100])
+        return reply
     
     except Exception as e:
-        print("Groq AI Error: " + str(e))
+        print("GROQ ERROR: " + str(e))
         return fallback_ai(message, username)
-
-
-def fallback_ai(message, username):
-    msg = message.lower().strip()
-    
-    if not msg:
-        return "I'm listening! What would you like to know?"
-    
-    greetings = ['hi', 'hello', 'hey', 'yo', 'sup', 'good morning', 'good evening']
-    if any(msg.startswith(g) or msg == g for g in greetings):
-        return "Hey " + username + "! I'm QHive AI - your trading assistant. Ask me anything about trading, crypto, forex, or content creation!"
-    
-    if any(w in msg for w in ['thank', 'thanks']):
-        return "You're welcome " + username + "! Happy to help. What else would you like to know?"
-    
-    if any(w in msg for w in ['bye', 'goodbye']):
-        return "Take care " + username + "! Come back anytime!"
-    
-    return ("Great question! I'm QHive AI and I can help with trading, crypto, forex, risk management, and more. "
-            "Try asking me something specific like:\n\n"
-            "- \"What is SMC?\"\n"
-            "- \"How to manage risk?\"\n"
-            "- \"Explain candlesticks\"\n"
-            "- \"Give me a trading plan\"\n\n"
-            "What would you like to learn?")
 
 
 # ================================
