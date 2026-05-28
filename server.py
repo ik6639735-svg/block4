@@ -276,30 +276,44 @@ def extract_hashtags(text):
 GROQ_API_KEY = os.environ.get('GROQ_API_KEY', '')
 
 
+def fallback_ai(message, username):
+    msg = message.lower().strip()
+    if not msg:
+        return "I'm listening! What would you like to know?"
+    greetings = ['hi', 'hello', 'hey', 'yo', 'sup', 'good morning', 'good evening', 'hy', 'hii', 'helo']
+    if any(msg.startswith(g) or msg == g for g in greetings):
+        return "Hey " + username + "! How's it going? I'm QHive AI. What can I help you with today?"
+    if any(w in msg for w in ['thank', 'thanks']):
+        return "You're welcome " + username + "! Anything else I can help with?"
+    if any(w in msg for w in ['bye', 'goodbye']):
+        return "Take care " + username + "! Come back anytime!"
+    return "I'd love to help with that! Try asking me about trading, crypto, forex, risk management, or anything else. What would you like to learn?"
+
+
 def get_ai_reply(message, username, history=None):
-    print("=== AI DEBUG ===")
-    print("GROQ_API_KEY exists: " + str(bool(GROQ_API_KEY)))
-    print("GROQ_API_KEY length: " + str(len(GROQ_API_KEY)))
-    
     if not GROQ_API_KEY:
-        print("NO API KEY - Using fallback")
+        print("NO GROQ KEY - using fallback")
         return fallback_ai(message, username)
     
     try:
-        print("Importing groq...")
+        import httpx
         from groq import Groq
-        print("Groq imported successfully!")
         
-        client = Groq(api_key=GROQ_API_KEY)
-        print("Client created!")
+        http_client = httpx.Client(timeout=30.0)
+        client = Groq(api_key=GROQ_API_KEY, http_client=http_client)
         
         system_prompt = (
-            "You are QHive AI - a friendly trading assistant. "
-            "Be conversational, natural, and helpful. "
-            "When someone says hi or hello, greet them warmly by name and ask how you can help. "
-            "Keep greetings short and friendly like a real person. "
-            "You specialize in trading education but can chat about anything. "
-            "The user's name is " + username + "."
+            "You are QHive AI - a friendly and conversational trading assistant. "
+            "Be natural and human-like in your responses, just like ChatGPT. "
+            "When someone says hi, hello, or any greeting, respond warmly and briefly like a friend would. "
+            "For example if someone says 'hi', just say something like 'Hey [name]! What's up?' "
+            "Do NOT give long responses to simple greetings. Keep greetings short and natural. "
+            "You specialize in trading education (forex, crypto, stocks, SMC, technical analysis) "
+            "but you can chat about anything. "
+            "Use emojis occasionally to be friendly. "
+            "When teaching about trading, be detailed and thorough. "
+            "Use **bold** for important terms and organize with bullet points. "
+            "The user's name is " + username + ". Use their name sometimes to be personal."
         )
         
         messages = [{"role": "system", "content": system_prompt}]
@@ -310,7 +324,6 @@ def get_ai_reply(message, username, history=None):
         
         messages.append({"role": "user", "content": message})
         
-        print("Sending to Groq...")
         completion = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             messages=messages,
@@ -319,7 +332,7 @@ def get_ai_reply(message, username, history=None):
         )
         
         reply = completion.choices[0].message.content
-        print("Got reply: " + reply[:100])
+        http_client.close()
         return reply
     
     except Exception as e:
