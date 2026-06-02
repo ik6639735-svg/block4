@@ -4,81 +4,173 @@
 
 <div class="auth-page">
     <div class="auth-container">
-        <div class="auth-header">
-            <div class="auth-logo">
-                <div class="logo-icon large">Q</div>
-            </div>
-            <h1>Welcome Back</h1>
-            <p>Enter your credentials to access your account</p>
-        </div>
-        
-        <form class="auth-form" method="POST">
-            <div class="input-group">
-                <i class="fa-solid fa-envelope"></i>
-                <input type="email" name="email" placeholder="Email address" required>
+        <div class="auth-card animate-card">
+            
+            <!-- Logo Animation -->
+            <div class="auth-logo-section animate-logo">
+                <div class="auth-logo-circle">
+                    <div class="logo-pulse"></div>
+                    <div class="logo-inner">Q</div>
+                </div>
+                <h1 class="auth-title animate-text">Welcome Back</h1>
+                <p class="auth-subtitle animate-text-delay">Sign in to continue trading smarter</p>
             </div>
             
-            <div class="input-group">
-                <i class="fa-solid fa-lock"></i>
-                <input type="password" name="password" placeholder="Password" required>
+            <!-- Form -->
+            <form class="auth-form" method="POST">
+                <div class="input-float animate-input-1">
+                    <div class="input-icon-wrapper">
+                        <i class="fa-solid fa-envelope"></i>
+                    </div>
+                    <div class="input-field-wrapper">
+                        <input type="email" name="email" id="loginEmail" required placeholder=" ">
+                        <label for="loginEmail">Email address</label>
+                        <div class="input-line"></div>
+                    </div>
+                </div>
+                
+                <div class="input-float animate-input-2">
+                    <div class="input-icon-wrapper">
+                        <i class="fa-solid fa-lock"></i>
+                    </div>
+                    <div class="input-field-wrapper">
+                        <input type="password" name="password" id="loginPassword" required placeholder=" ">
+                        <label for="loginPassword">Password</label>
+                        <div class="input-line"></div>
+                    </div>
+                    <button type="button" class="password-toggle" onclick="togglePassword()">
+                        <i class="fa-solid fa-eye" id="eyeIcon"></i>
+                    </button>
+                </div>
+                
+                <div class="form-options animate-input-3">
+                    <label class="checkbox-animated">
+                        <input type="checkbox">
+                        <span class="check-box">
+                            <i class="fa-solid fa-check"></i>
+                        </span>
+                        <span>Remember me</span>
+                    </label>
+                    <a href="{{ url_for('forgot_password') }}" class="forgot-link-animated">Forgot password?</a>
+                </div>
+                
+                <button type="submit" class="btn-login-animated animate-input-4">
+                    <span class="btn-text">Sign In</span>
+                    <span class="btn-icon"><i class="fa-solid fa-arrow-right"></i></span>
+                    <div class="btn-shine"></div>
+                </button>
+            </form>
+            
+            <!-- Divider -->
+            <div class="divider-animated animate-input-5">
+                <div class="divider-line"></div>
+                <span>or continue with</span>
+                <div class="divider-line"></div>
             </div>
             
-            <div class="form-options">
-                <label class="checkbox-wrapper">
-                    <input type="checkbox">
-                    <span class="checkmark"></span>
-                    Remember me
-                </label>
-                <a href="{{ url_for('forgot_password') }}" class="forgot-link">Forgot password?</a>
+            <!-- Social Buttons -->
+            <div class="social-animated animate-input-6">
+                <a href="{{ url_for('google_login') }}" class="social-btn-animated google">
+                    <i class="fa-brands fa-google"></i>
+                    <span>Google</span>
+                </a>
+                <a href="{{ url_for('apple_login') }}" class="social-btn-animated apple">
+                    <i class="fa-brands fa-apple"></i>
+                    <span>Apple</span>
+                </a>
+                <a href="{{ url_for('twitter_login') }}" class="social-btn-animated twitter">
+                    <i class="fa-brands fa-x-twitter"></i>
+                    <span>X</span>
+                </a>
             </div>
             
-            <button type="submit" class="btn-primary">
-                Sign In
-                <i class="fa-solid fa-arrow-right"></i>
-            </button>
-        </form>
-        
-        <div class="auth-divider">
-            <span>or continue with</span>
+            <!-- Footer -->
+            <p class="auth-footer-animated animate-input-7">
+                Don't have an account? <a href="{{ url_for('signup') }}">Create one</a>
+            </p>
         </div>
-        
-        <div class="social-login">
-            <a href="{{ url_for('google_login') }}" class="btn-social" title="Sign in with Google">
-                <i class="fa-brands fa-google"></i>
-            </a>
-            <a href="{{ url_for('apple_login') }}" class="btn-social" title="Sign in with Apple">
-                <i class="fa-brands fa-apple"></i>
-            </a>
-            <a href="{{ url_for('twitter_login') }}" class="btn-social" title="Sign in with Twitter">
-                <i class="fa-brands fa-twitter"></i>
-            </a>
-        </div>
-        
-        <p class="auth-footer">
-            Don't have an account? <a href="{{ url_for('signup') }}">Create one</a>
-        </p>
     </div>
     
-    <div class="auth-visual">
-        <div class="visual-content">
-            <div class="floating-cards">
-                <div class="float-card card-1">
-                    <i class="fa-solid fa-chart-line"></i>
-                    <span>+247%</span>
+    <!-- Right Visual Side -->
+    <div class="auth-visual-animated">
+        <div class="visual-bg-effects">
+            <div class="glow-circle glow-1"></div>
+            <div class="glow-circle glow-2"></div>
+            <div class="glow-circle glow-3"></div>
+        </div>
+        
+        <div class="visual-content-animated">
+            <!-- Animated Cards -->
+            <div class="floating-cards-animated">
+                <div class="card-float card-1">
+                    <div class="card-float-icon"><i class="fa-solid fa-chart-line"></i></div>
+                    <div class="card-float-info">
+                        <span class="card-float-value up">+247%</span>
+                        <span class="card-float-label">Portfolio Growth</span>
+                    </div>
                 </div>
-                <div class="float-card card-2">
-                    <i class="fa-solid fa-fire"></i>
-                    <span>Trending</span>
+                <div class="card-float card-2">
+                    <div class="card-float-icon"><i class="fa-solid fa-users"></i></div>
+                    <div class="card-float-info">
+                        <span class="card-float-value">10K+</span>
+                        <span class="card-float-label">Active Traders</span>
+                    </div>
                 </div>
-                <div class="float-card card-3">
-                    <i class="fa-solid fa-bolt"></i>
-                    <span>AI Powered</span>
+                <div class="card-float card-3">
+                    <div class="card-float-icon"><i class="fa-solid fa-robot"></i></div>
+                    <div class="card-float-info">
+                        <span class="card-float-value">AI</span>
+                        <span class="card-float-label">Powered Insights</span>
+                    </div>
+                </div>
+                <div class="card-float card-4">
+                    <div class="card-float-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                    <div class="card-float-info">
+                        <span class="card-float-value up">99.9%</span>
+                        <span class="card-float-label">Uptime</span>
+                    </div>
                 </div>
             </div>
-            <h2>Trade Smarter.<br><span class="gold">Grow Faster.</span></h2>
-            <p>Join the community of traders and creators building their future with QHive.</p>
+            
+            <!-- Text -->
+            <div class="visual-text-animated">
+                <h2>Trade Smarter.<br><span class="gold-text">Grow Faster.</span></h2>
+                <p>Join the community of traders building their future with QHive.</p>
+            </div>
+            
+            <!-- Stats Bar -->
+            <div class="stats-bar-animated">
+                <div class="stat-animated">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Real-time Data</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-animated">
+                    <i class="fa-solid fa-robot"></i>
+                    <span>AI Assistant</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-animated">
+                    <i class="fa-solid fa-lock"></i>
+                    <span>Secure</span>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<script>
+function togglePassword() {
+    var input = document.getElementById('loginPassword');
+    var icon = document.getElementById('eyeIcon');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fa-solid fa-eye-slash';
+    } else {
+        input.type = 'password';
+        icon.className = 'fa-solid fa-eye';
+    }
+}
+</script>
 
 {% endblock %}
