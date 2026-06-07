@@ -68,7 +68,7 @@
                         <span class="check-box">
                             <i class="fa-solid fa-check"></i>
                         </span>
-            <span>I agree to the <a href="/terms" style="color:var(--gold);">Terms</a> and <a href="/privacy" style="color:var(--gold);">Privacy Policy</a></span>
+                        <span>I agree to the <a href="/terms" style="color:var(--gold);">Terms</a> and <a href="/privacy" style="color:var(--gold);">Privacy Policy</a></span>
                     </label>
                 </div>
                 
@@ -81,4 +81,107 @@
             
             <div class="divider-animated animate-input-6">
                 <div class="divider-line"></div>
-                <span>or sign 
+                <span>or sign up with</span>
+                <div class="divider-line"></div>
+            </div>
+            
+            <div class="social-animated animate-input-7">
+                <a href="{{ url_for('google_login') }}" class="social-btn-animated google">
+                    <i class="fa-brands fa-google"></i>
+                    <span>Google</span>
+                </a>
+                <a href="{{ url_for('apple_login') }}" class="social-btn-animated apple">
+                    <i class="fa-brands fa-apple"></i>
+                    <span>Apple</span>
+                </a>
+                <a href="{{ url_for('twitter_login') }}" class="social-btn-animated twitter">
+                    <i class="fa-brands fa-x-twitter"></i>
+                    <span>X</span>
+                </a>
+            </div>
+            
+            <p class="auth-footer-animated" style="animation: fadeSlideUp 0.5s ease 1.1s forwards; opacity: 0;">
+                Already have an account? <a href="{{ url_for('login') }}">Sign in</a>
+            </p>
+        </div>
+    </div>
+    
+    <div class="auth-visual-animated">
+        <div class="visual-bg-effects">
+            <div class="glow-circle glow-1"></div>
+            <div class="glow-circle glow-2"></div>
+            <div class="glow-circle glow-3"></div>
+        </div>
+        
+        <div class="visual-content-animated">
+            <div class="floating-cards-animated">
+                <div class="card-float card-1">
+                    <div class="card-float-icon"><i class="fa-solid fa-users"></i></div>
+                    <div class="card-float-info">
+                        <span class="card-float-value">10K+</span>
+                        <span class="card-float-label">Active Traders</span>
+                    </div>
+                </div>
+                <div class="card-float card-2">
+                    <div class="card-float-icon"><i class="fa-solid fa-star"></i></div>
+                    <div class="card-float-info">
+                        <span class="card-float-value up">4.9</span>
+                        <span class="card-float-label">User Rating</span>
+                    </div>
+                </div>
+                <div class="card-float card-3">
+                    <div class="card-float-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                    <div class="card-float-info">
+                        <span class="card-float-value">100%</span>
+                        <span class="card-float-label">Secure Platform</span>
+                    </div>
+                </div>
+                <div class="card-float card-4">
+                    <div class="card-float-icon"><i class="fa-solid fa-robot"></i></div>
+                    <div class="card-float-info">
+                        <span class="card-float-value">AI</span>
+                        <span class="card-float-label">Smart Trading</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="visual-text-animated">
+                <h2>Join the<br><span class="gold-text">Revolution.</span></h2>
+                <p>Connect with traders, access AI-powered insights, and build your brand.</p>
+            </div>
+            
+            <div class="stats-bar-animated">
+                <div class="stat-animated">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Free to Join</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-animated">
+                    <i class="fa-solid fa-robot"></i>
+                    <span>AI Powered</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-animated">
+                    <i class="fa-solid fa-globe"></i>
+                    <span>Global Community</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleSignupPassword() {
+    var input = document.getElementById('signupPassword');
+    var icon = document.getElementById('signupEyeIcon');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fa-solid fa-eye-slash';
+    } else {
+        input.type = 'password';
+        icon.className = 'fa-solid fa-eye';
+    }
+}
+</script>
+
+{% endblock %}
