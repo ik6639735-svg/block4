@@ -1,22 +1,22 @@
 /* ============================================
-   QHIVE - Smart Traders. Stronger Together.
-   Professional Trading Platform Design
+   QHIVE - Luxor Gold + Jet Black Theme
+   Premium Professional Trading Platform
 ============================================= */
 
 :root,
 [data-theme="dark"] {
-    /* Core Colors */
-    --bg-primary: #0a0b0e;
-    --bg-secondary: #0f1014;
-    --bg-elevated: #141519;
-    --bg-card: #181a20;
-    --bg-hover: #1e2028;
+    /* Jet Black Backgrounds */
+    --bg-primary: #000000;
+    --bg-secondary: #050505;
+    --bg-elevated: #0a0a0a;
+    --bg-card: #0f0f0f;
+    --bg-hover: #151515;
     
-    /* Gold/Yellow Accent */
-    --gold: #f0b90b;
-    --gold-light: #f8d33a;
-    --gold-dim: #c49a09;
-    --gold-glow: rgba(240, 185, 11, 0.12);
+    /* Luxor Gold Accent */
+    --gold: #A7882C;
+    --gold-light: #C4A235;
+    --gold-dim: #8B7124;
+    --gold-glow: rgba(167, 136, 44, 0.12);
     
     /* Green (Profit) */
     --green: #0ecb81;
@@ -27,18 +27,18 @@
     --red-bg: rgba(246, 70, 93, 0.1);
     
     /* Text */
-    --text-primary: #eaecef;
-    --text-secondary: #848e9c;
-    --text-muted: #5e6673;
+    --text-primary: #e8e6e3;
+    --text-secondary: #8a8680;
+    --text-muted: #5c5752;
     
     /* Borders */
-    --border: #1e2028;
-    --border-light: #2b2f3a;
+    --border: #1a1a1a;
+    --border-light: #252525;
     
     /* Status */
     --success: #0ecb81;
     --error: #f6465d;
-    --warning: #f0b90b;
+    --warning: #A7882C;
     --info: #1e90ff;
     
     /* Spacing */
@@ -52,41 +52,44 @@
 
 /* Midnight Theme */
 [data-theme="midnight"] {
-    --bg-primary: #0f172a;
-    --bg-secondary: #1e293b;
-    --bg-elevated: #1e293b;
-    --bg-card: #1e293b;
-    --bg-hover: #334155;
-    --gold: #3b82f6;
-    --gold-light: #60a5fa;
-    --gold-dim: #2563eb;
-    --gold-glow: rgba(59, 130, 246, 0.15);
-    --border: #334155;
-    --border-light: #475569;
+    --bg-primary: #0a0f1a;
+    --bg-secondary: #111827;
+    --bg-elevated: #151c2c;
+    --bg-card: #1a2235;
+    --bg-hover: #222d42;
+    --gold: #6B8CC7;
+    --gold-light: #8BA7D9;
+    --gold-dim: #4F6FA0;
+    --gold-glow: rgba(107, 140, 199, 0.12);
+    --border: #1e2a3f;
+    --border-light: #2a3a54;
+    --text-primary: #e0e4ea;
+    --text-secondary: #7d8694;
+    --text-muted: #4e5664;
 }
 
 /* Light Theme */
 [data-theme="light"] {
-    --bg-primary: #ffffff;
-    --bg-secondary: #f8f9fa;
-    --bg-elevated: #f0f0f0;
+    --bg-primary: #fafafa;
+    --bg-secondary: #f2f0ed;
+    --bg-elevated: #eae7e2;
     --bg-card: #ffffff;
-    --bg-hover: #f5f5f5;
-    --gold: #c49a09;
-    --gold-light: #daa520;
-    --gold-dim: #8b6914;
-    --gold-glow: rgba(196, 154, 9, 0.1);
+    --bg-hover: #f5f3f0;
+    --gold: #8B7124;
+    --gold-light: #A7882C;
+    --gold-dim: #6B5618;
+    --gold-glow: rgba(139, 113, 36, 0.08);
     --text-primary: #1a1a1a;
-    --text-secondary: #555555;
-    --text-muted: #999999;
-    --border: #e0e0e0;
-    --border-light: #d0d0d0;
+    --text-secondary: #555250;
+    --text-muted: #8a8680;
+    --border: #e0ddd8;
+    --border-light: #d0ccc6;
     --green: #0ecb81;
     --red: #f6465d;
 }
 
 [data-theme="light"] .sidebar {
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255, 0.97);
 }
 
 [data-theme="light"] .mobile-nav {
@@ -94,7 +97,7 @@
 }
 
 [data-theme="light"] .orb {
-    opacity: 0.08;
+    opacity: 0.06;
 }
 
 * {
@@ -205,10 +208,10 @@ body::before {
     right: 0;
     bottom: 0;
     background:
-        radial-gradient(ellipse at 20% 50%, rgba(240, 185, 11, 0.06) 0%, transparent 50%),
-        radial-gradient(ellipse at 80% 20%, rgba(14, 203, 129, 0.04) 0%, transparent 50%),
-        radial-gradient(ellipse at 50% 80%, rgba(30, 144, 255, 0.03) 0%, transparent 50%),
-        linear-gradient(180deg, #08090c 0%, #0a0b0e 50%, #0c0d11 100%);
+        radial-gradient(ellipse at 20% 50%, rgba(167, 136, 44, 0.04) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(14, 203, 129, 0.03) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 80%, rgba(167, 136, 44, 0.02) 0%, transparent 50%),
+        linear-gradient(180deg, #000000 0%, #050505 50%, #000000 100%);
     z-index: -1;
     pointer-events: none;
 }
@@ -217,23 +220,24 @@ body::before {
 .post-card,
 .sidebar-card,
 .create-card {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 1px rgba(240, 185, 11, 0.05);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5), 0 0 1px rgba(167, 136, 44, 0.03);
 }
 
 .post-card:hover,
 .sidebar-card:hover {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 0 1px rgba(240, 185, 11, 0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), 0 0 1px rgba(167, 136, 44, 0.08);
 }
 
 /* Sidebar Depth */
 .sidebar {
-    box-shadow: 2px 0 20px rgba(0, 0, 0, 0.5);
+    box-shadow: 2px 0 25px rgba(0, 0, 0, 0.7);
+    background: rgba(5, 5, 5, 0.98);
 }
 
 /* Glass Effect on Cards */
 .create-card,
 .sidebar-card {
-    background: linear-gradient(145deg, rgba(24, 26, 32, 0.9), rgba(20, 21, 25, 0.95));
+    background: linear-gradient(145deg, rgba(15, 15, 15, 0.95), rgba(10, 10, 10, 0.98));
     backdrop-filter: blur(10px);
 }
 
@@ -241,30 +245,29 @@ body::before {
 .btn-create,
 .btn-primary,
 .mobile-create {
-    box-shadow: 0 4px 20px rgba(240, 185, 11, 0.25);
+    box-shadow: 0 4px 20px rgba(167, 136, 44, 0.2);
 }
 
 .btn-create:hover,
 .btn-primary:hover {
-    box-shadow: 0 6px 30px rgba(240, 185, 11, 0.35);
+    box-shadow: 0 6px 30px rgba(167, 136, 44, 0.3);
 }
 
 /* Navigation Active Glow */
 .nav-link.active {
-    box-shadow: inset 0 0 20px rgba(240, 185, 11, 0.05);
+    box-shadow: inset 0 0 20px rgba(167, 136, 44, 0.04);
 }
 
 /* Avatar Glow */
 .user-avatar,
 .author-avatar {
-    box-shadow: 0 2px 10px rgba(240, 185, 11, 0.15);
+    box-shadow: 0 2px 10px rgba(167, 136, 44, 0.1);
 }
 
 /* Story Card Glow */
 .story-card:hover {
-    box-shadow: 0 4px 15px rgba(240, 185, 11, 0.2);
+    box-shadow: 0 4px 15px rgba(167, 136, 44, 0.15);
 }
-
 /* ============================================
    ANIMATED BACKGROUND
 ============================================= */
@@ -290,7 +293,7 @@ body::before {
 .orb-1 {
     width: 500px;
     height: 500px;
-    background: radial-gradient(circle, var(--gold) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(167, 136, 44, 0.5) 0%, transparent 70%);
     top: -200px;
     left: -100px;
 }
@@ -298,7 +301,7 @@ body::before {
 .orb-2 {
     width: 350px;
     height: 350px;
-    background: radial-gradient(circle, rgba(14, 203, 129, 0.4) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(14, 203, 129, 0.3) 0%, transparent 70%);
     bottom: -100px;
     right: -50px;
     animation-delay: -8s;
@@ -307,7 +310,7 @@ body::before {
 .orb-3 {
     width: 250px;
     height: 250px;
-    background: radial-gradient(circle, rgba(30, 144, 255, 0.3) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(167, 136, 44, 0.2) 0%, transparent 70%);
     top: 50%;
     left: 50%;
     animation-delay: -16s;
@@ -2633,8 +2636,8 @@ body::before {
     box-shadow: 0 0 0 3px var(--gold-glow);
 }
 
-.dark-preview { background: #0a0b0e; }
-.dark-preview .theme-dot { width: 20px; height: 20px; background: #f0b90b; border-radius: 50%; }
+.dark-preview { background: #000000; }
+.dark-preview .theme-dot { width: 20px; height: 20px; background: #A7882C; border-radius: 50%; }
 .midnight-preview { background: #0f172a; }
 .midnight-preview .theme-dot { width: 20px; height: 20px; background: #3b82f6; border-radius: 50%; }
 .light-preview { background: #f5f5f5; }
@@ -3931,7 +3934,7 @@ body::before {
 
 .btn-login-animated:hover {
     transform: translateY(-3px);
-    box-shadow: 0 8px 30px rgba(240, 185, 11, 0.35);
+    box-shadow: 0 8px 30px rgba(167, 136, 44, 0.3);
 }
 
 .btn-login-animated:active {
@@ -4079,7 +4082,7 @@ body::before {
 .glow-1 {
     width: 400px;
     height: 400px;
-    background: rgba(240, 185, 11, 0.12);
+    background: rgba(167, 136, 44, 0.1);
     top: -100px;
     right: -50px;
     animation: glowMove1 8s ease-in-out infinite;
