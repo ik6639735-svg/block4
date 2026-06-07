@@ -3,9 +3,7 @@
 <head>
     <script>
     var t = localStorage.getItem('QHive-theme');
-    if (t) {
-        document.documentElement.setAttribute('data-theme', t);
-    }
+    if (t) { document.documentElement.setAttribute('data-theme', t); }
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -24,7 +22,7 @@
     </div>
 
     {% if session.get("user_id") %}
-    <aside class="sidebar">
+    <aside class="sidebar collapsed" id="mainSidebar">
         <div class="sidebar-top">
             <div class="qhive-logo">
                 <div class="qhive-logo-svg">
@@ -40,64 +38,99 @@
                         <rect x="57" y="40" width="6" height="8" rx="1" fill="#A7882C" />
                     </svg>
                 </div>
-                <span class="qhive-logo-text">Q<span>Hive</span></span>
-                <span class="qhive-ai-tag">AI</span>
+                <span class="qhive-logo-text sidebar-text">Q<span>Hive</span></span>
+                <span class="qhive-ai-tag sidebar-text">AI</span>
             </div>
         </div>
         
         <nav class="nav-menu">
-            <a href="{{ url_for('feed') }}" class="nav-link {% if request.endpoint == 'feed' %}active{% endif %}">
+            <a href="{{ url_for('feed') }}" class="nav-link {% if request.endpoint == 'feed' %}active{% endif %}" title="Home">
                 <i class="fa-solid fa-house"></i>
-                <span>Home</span>
+                <span class="sidebar-text">Home</span>
             </a>
-            <a href="{{ url_for('ai') }}" class="nav-link {% if request.endpoint == 'ai' %}active{% endif %}">
+            <a href="{{ url_for('ai') }}" class="nav-link {% if request.endpoint == 'ai' %}active{% endif %}" title="AI Assistant">
                 <i class="fa-solid fa-robot"></i>
-                <span>AI Assistant</span>
+                <span class="sidebar-text">AI Assistant</span>
             </a>
-            <a href="{{ url_for('explore') }}" class="nav-link {% if request.endpoint == 'explore' %}active{% endif %}">
+            <a href="{{ url_for('explore') }}" class="nav-link {% if request.endpoint == 'explore' %}active{% endif %}" title="Explore">
                 <i class="fa-solid fa-compass"></i>
-                <span>Explore</span>
+                <span class="sidebar-text">Explore</span>
             </a>
-            <a href="{{ url_for('reels') }}" class="nav-link {% if request.endpoint == 'reels' %}active{% endif %}">
+            <a href="{{ url_for('reels') }}" class="nav-link {% if request.endpoint == 'reels' %}active{% endif %}" title="Reels">
                 <i class="fa-solid fa-film"></i>
-                <span>Reels</span>
+                <span class="sidebar-text">Reels</span>
             </a>
-            <a href="{{ url_for('notifications') }}" class="nav-link {% if request.endpoint == 'notifications' %}active{% endif %}">
+            <a href="{{ url_for('notifications') }}" class="nav-link {% if request.endpoint == 'notifications' %}active{% endif %}" title="Notifications">
                 <i class="fa-solid fa-bell"></i>
-                <span>Notifications</span>
+                <span class="sidebar-text">Notifications</span>
                 <span class="badge" id="notifBadge" style="display:none;">0</span>
             </a>
-            <a href="{{ url_for('messages') }}" class="nav-link {% if request.endpoint == 'messages' or request.endpoint == 'chat' %}active{% endif %}">
+            <a href="{{ url_for('messages') }}" class="nav-link {% if request.endpoint == 'messages' or request.endpoint == 'chat' %}active{% endif %}" title="Messages">
                 <i class="fa-solid fa-envelope"></i>
-                <span>Messages</span>
+                <span class="sidebar-text">Messages</span>
             </a>
-            <a href="{{ url_for('profile', username=session.username) }}" class="nav-link {% if request.endpoint == 'profile' %}active{% endif %}">
+            <a href="{{ url_for('profile', username=session.username) }}" class="nav-link {% if request.endpoint == 'profile' %}active{% endif %}" title="Profile">
                 <i class="fa-solid fa-user"></i>
-                <span>Profile</span>
-            </a>
-            <a href="{{ url_for('settings') }}" class="nav-link {% if request.endpoint == 'settings' %}active{% endif %}">
-                <i class="fa-solid fa-gear"></i>
-                <span>Settings</span>
+                <span class="sidebar-text">Profile</span>
             </a>
         </nav>
         
         <div class="sidebar-bottom">
             <button class="btn-create" onclick="openComposer()">
                 <i class="fa-solid fa-plus"></i>
-                <span>Create Post</span>
+                <span class="sidebar-text">Create Post</span>
             </button>
+            
+            <!-- MORE BUTTON -->
+            <button class="nav-link more-btn" onclick="openMoreMenu()" title="More">
+                <i class="fa-solid fa-bars"></i>
+                <span class="sidebar-text">More</span>
+            </button>
+            
             <div class="user-card">
                 <div class="user-avatar">{{ session.username[0].upper() }}</div>
-                <div class="user-info">
+                <div class="user-info sidebar-text">
                     <strong>{{ session.username }}</strong>
                     <span>@{{ session.username|lower }}</span>
                 </div>
-                <a href="{{ url_for('logout') }}" class="logout-btn" title="Logout">
-                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                </a>
             </div>
         </div>
     </aside>
+
+    <!-- MORE MENU POPUP -->
+    <div class="more-menu-overlay" id="moreMenuOverlay" onclick="closeMoreMenu(event)">
+        <div class="more-menu-popup" onclick="event.stopPropagation()">
+            <a href="{{ url_for('settings') }}" class="more-menu-item">
+                <i class="fa-solid fa-gear"></i>
+                <span>Settings</span>
+            </a>
+            <a href="#" class="more-menu-item">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                <span>Your Activity</span>
+            </a>
+            <a href="#" class="more-menu-item">
+                <i class="fa-solid fa-bookmark"></i>
+                <span>Saved</span>
+            </a>
+            <a href="{{ url_for('settings') }}#appearance" class="more-menu-item">
+                <i class="fa-solid fa-palette"></i>
+                <span>Appearance</span>
+            </a>
+            <a href="#" class="more-menu-item">
+                <i class="fa-solid fa-flag"></i>
+                <span>Report a Problem</span>
+            </a>
+            <div class="more-menu-divider"></div>
+            <a href="#" class="more-menu-item">
+                <i class="fa-solid fa-user-plus"></i>
+                <span>Switch Account</span>
+            </a>
+            <a href="{{ url_for('logout') }}" class="more-menu-item logout">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span>Log Out</span>
+            </a>
+        </div>
+    </div>
     {% endif %}
 
     <main class="main-area {% if session.get('user_id') %}logged-in{% endif %}">
@@ -116,22 +149,18 @@
     <nav class="mobile-nav">
         <a href="{{ url_for('feed') }}" class="mobile-link {% if request.endpoint == 'feed' %}active{% endif %}">
             <i class="fa-solid fa-house"></i>
-            <span>Home</span>
         </a>
         <a href="{{ url_for('explore') }}" class="mobile-link {% if request.endpoint == 'explore' %}active{% endif %}">
             <i class="fa-solid fa-compass"></i>
-            <span>Explore</span>
         </a>
         <button class="mobile-create" onclick="openComposer()">
             <i class="fa-solid fa-plus"></i>
         </button>
         <a href="{{ url_for('ai') }}" class="mobile-link {% if request.endpoint == 'ai' %}active{% endif %}">
             <i class="fa-solid fa-robot"></i>
-            <span>AI</span>
         </a>
-        <a href="{{ url_for('profile', username=session.username) }}" class="mobile-link {% if request.endpoint == 'profile' %}active{% endif %}" id="mobileProfileBtn">
-            <i class="fa-solid fa-user"></i>
-            <span>Profile</span>
+        <a href="#" class="mobile-link" onclick="openMobileMore(); return false;">
+            <i class="fa-solid fa-bars"></i>
         </a>
     </nav>
 
@@ -146,7 +175,14 @@
                 <a href="{{ url_for('notifications') }}" class="mobile-more-item"><i class="fa-solid fa-bell"></i><span>Notifications</span></a>
                 <a href="{{ url_for('messages') }}" class="mobile-more-item"><i class="fa-solid fa-envelope"></i><span>Messages</span></a>
                 <a href="{{ url_for('profile', username=session.username) }}" class="mobile-more-item"><i class="fa-solid fa-user"></i><span>Profile</span></a>
+                <div class="mobile-more-divider"></div>
                 <a href="{{ url_for('settings') }}" class="mobile-more-item"><i class="fa-solid fa-gear"></i><span>Settings</span></a>
+                <a href="#" class="mobile-more-item"><i class="fa-solid fa-clock-rotate-left"></i><span>Your Activity</span></a>
+                <a href="#" class="mobile-more-item"><i class="fa-solid fa-bookmark"></i><span>Saved</span></a>
+                <a href="#" class="mobile-more-item"><i class="fa-solid fa-palette"></i><span>Appearance</span></a>
+                <a href="#" class="mobile-more-item"><i class="fa-solid fa-flag"></i><span>Report a Problem</span></a>
+                <div class="mobile-more-divider"></div>
+                <a href="#" class="mobile-more-item"><i class="fa-solid fa-user-plus"></i><span>Switch Account</span></a>
                 <a href="{{ url_for('logout') }}" class="mobile-more-item logout"><i class="fa-solid fa-arrow-right-from-bracket"></i><span>Log Out</span></a>
             </div>
         </div>
@@ -158,19 +194,23 @@
         setTimeout(function() { toast.style.opacity = '0'; setTimeout(function() { toast.remove(); }, 300); }, 4000);
     });
 
-    var mobileProfileBtn = document.getElementById('mobileProfileBtn');
-    if (mobileProfileBtn) {
-        var lastTap = 0;
-        mobileProfileBtn.addEventListener('touchend', function(e) {
-            var currentTime = new Date().getTime();
-            var tapLength = currentTime - lastTap;
-            if (tapLength < 300 && tapLength > 0) { e.preventDefault(); openMobileMore(); }
-            lastTap = currentTime;
-        });
+    function openMoreMenu() {
+        document.getElementById('moreMenuOverlay').classList.add('active');
+    }
+    function closeMoreMenu(e) {
+        if (e && e.target !== e.currentTarget) return;
+        document.getElementById('moreMenuOverlay').classList.remove('active');
     }
 
-    function openMobileMore() { document.getElementById('mobileMoreMenu').classList.add('active'); document.body.style.overflow = 'hidden'; }
-    function closeMobileMore(e) { if (e && e.target !== e.currentTarget) return; document.getElementById('mobileMoreMenu').classList.remove('active'); document.body.style.overflow = ''; }
+    function openMobileMore() {
+        document.getElementById('mobileMoreMenu').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeMobileMore(e) {
+        if (e && e.target !== e.currentTarget) return;
+        document.getElementById('mobileMoreMenu').classList.remove('active');
+        document.body.style.overflow = '';
+    }
 
     var moreSheet = document.querySelector('.mobile-more-sheet');
     if (moreSheet) {
