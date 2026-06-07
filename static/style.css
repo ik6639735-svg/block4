@@ -132,69 +132,56 @@ a {
 }
 
 /* ============================================
-   QHIVE LOGO
+   QHIVE SVG LOGO
 ============================================= */
-.qhive-logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.qhive-logo-icon {
+.qhive-logo-svg {
     width: 38px;
     height: 38px;
-    background: var(--gold);
-    border-radius: 12px;
-    display: grid;
-    place-items: center;
-    position: relative;
-    overflow: hidden;
     flex-shrink: 0;
+    filter: drop-shadow(0 2px 8px rgba(167, 136, 44, 0.3));
+    transition: all 0.3s ease;
 }
 
-.qhive-logo-icon::before {
-    content: '';
+.qhive-logo-svg:hover {
+    filter: drop-shadow(0 4px 12px rgba(167, 136, 44, 0.5));
+    transform: scale(1.05);
+}
+
+.qhive-logo-svg svg {
+    width: 100%;
+    height: 100%;
+}
+
+.logo-bee {
     position: absolute;
-    width: 20px;
-    height: 20px;
-    background: rgba(0, 0, 0, 0.2);
-    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    width: 14px;
+    height: 14px;
+    z-index: 3;
 }
 
-.qhive-logo-icon::after {
-    content: 'Q';
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 16px;
-    font-weight: 800;
-    color: black;
-    position: relative;
-    z-index: 1;
-}
-
-.qhive-logo-text {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--text-primary);
-    letter-spacing: 0.5px;
-}
-
-.qhive-logo-text span {
-    color: var(--gold);
-}
-
-.qhive-ai-tag {
+.logo-bee::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 3px;
+    width: 8px;
+    height: 4px;
     background: var(--gold);
-    color: black;
-    font-size: 9px;
-    font-weight: 800;
-    padding: 2px 6px;
-    border-radius: 4px;
-    letter-spacing: 1px;
-    margin-left: 2px;
+    border-radius: 4px 4px 0 0;
+}
+
+.logo-bee::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    left: 3px;
+    width: 8px;
+    height: 4px;
+    background: var(--gold);
+    border-radius: 0 0 4px 4px;
 }
 
 /* ============================================
@@ -3932,10 +3919,7 @@ body::before {
     transition: all 0.3s ease;
 }
 
-.btn-login-animated:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 30px rgba(167, 136, 44, 0.3);
-}
+
 
 .btn-login-animated:active {
     transform: translateY(-1px);
