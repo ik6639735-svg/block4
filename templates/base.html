@@ -17,57 +17,50 @@
 </head>
 <body data-logged-in="{% if session.get('user_id') %}true{% else %}false{% endif %}">
 
-    <!-- GLOWING ORB BACKGROUND -->
     <div class="bg-orbs">
         <div class="orb orb-1"></div>
         <div class="orb orb-2"></div>
         <div class="orb orb-3"></div>
     </div>
 
-    <!-- SIDEBAR NAVIGATION (Desktop) -->
     {% if session.get("user_id") %}
     <aside class="sidebar">
         <div class="sidebar-top">
-    <div class="qhive-logo">
-    <div class="qhive-logo-svg">
-        <svg width="38" height="38" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-            <!-- Outer Hexagon -->
-            <polygon points="50,2 95,27 95,73 50,98 5,73 5,27" fill="#A7882C" />
-            <!-- Inner Hexagon -->
-            <polygon points="50,15 82,33 82,67 50,85 18,67 18,33" fill="#000000" />
-            <!-- Honeycomb Pattern -->
-            <polygon points="50,25 70,38 70,58 50,72 30,58 30,38" fill="none" stroke="#A7882C" stroke-width="2" />
-            <!-- Center Lines (Chart/Candle) -->
-            <line x1="40" y1="55" x2="40" y2="35" stroke="#A7882C" stroke-width="3" stroke-linecap="round" />
-            <line x1="50" y1="60" x2="50" y2="30" stroke="#C4A235" stroke-width="3" stroke-linecap="round" />
-            <line x1="60" y1="50" x2="60" y2="38" stroke="#A7882C" stroke-width="3" stroke-linecap="round" />
-            <!-- Candle Bodies -->
-            <rect x="37" y="38" width="6" height="10" rx="1" fill="#0ecb81" />
-            <rect x="47" y="35" width="6" height="15" rx="1" fill="#0ecb81" />
-            <rect x="57" y="40" width="6" height="8" rx="1" fill="#A7882C" />
-        </svg>
-    </div>
-    <span class="qhive-logo-text">Q<span>Hive</span></span>
-    <span class="qhive-ai-tag">AI</span>
-</div>
+            <div class="qhive-logo">
+                <div class="qhive-logo-svg">
+                    <svg width="38" height="38" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <polygon points="50,2 95,27 95,73 50,98 5,73 5,27" fill="#A7882C" />
+                        <polygon points="50,15 82,33 82,67 50,85 18,67 18,33" fill="#000000" />
+                        <polygon points="50,25 70,38 70,58 50,72 30,58 30,38" fill="none" stroke="#A7882C" stroke-width="2" />
+                        <line x1="40" y1="55" x2="40" y2="35" stroke="#A7882C" stroke-width="3" stroke-linecap="round" />
+                        <line x1="50" y1="60" x2="50" y2="30" stroke="#C4A235" stroke-width="3" stroke-linecap="round" />
+                        <line x1="60" y1="50" x2="60" y2="38" stroke="#A7882C" stroke-width="3" stroke-linecap="round" />
+                        <rect x="37" y="38" width="6" height="10" rx="1" fill="#0ecb81" />
+                        <rect x="47" y="35" width="6" height="15" rx="1" fill="#0ecb81" />
+                        <rect x="57" y="40" width="6" height="8" rx="1" fill="#A7882C" />
+                    </svg>
+                </div>
+                <span class="qhive-logo-text">Q<span>Hive</span></span>
+                <span class="qhive-ai-tag">AI</span>
+            </div>
+        </div>
         
         <nav class="nav-menu">
             <a href="{{ url_for('feed') }}" class="nav-link {% if request.endpoint == 'feed' %}active{% endif %}">
                 <i class="fa-solid fa-house"></i>
                 <span>Home</span>
             </a>
-          <a href="{{ url_for('ai') }}" class="nav-link {% if request.endpoint == 'ai' %}active{% endif %}">
-    <i class="fa-solid fa-robot"></i>
-    <span>AI Assistant</span>
-</a>
+            <a href="{{ url_for('ai') }}" class="nav-link {% if request.endpoint == 'ai' %}active{% endif %}">
+                <i class="fa-solid fa-robot"></i>
+                <span>AI Assistant</span>
+            </a>
             <a href="{{ url_for('explore') }}" class="nav-link {% if request.endpoint == 'explore' %}active{% endif %}">
                 <i class="fa-solid fa-compass"></i>
                 <span>Explore</span>
             </a>
-            <a href="#" class="nav-link">
+            <a href="{{ url_for('reels') }}" class="nav-link {% if request.endpoint == 'reels' %}active{% endif %}">
                 <i class="fa-solid fa-film"></i>
                 <span>Reels</span>
-            </a>
             </a>
             <a href="{{ url_for('notifications') }}" class="nav-link {% if request.endpoint == 'notifications' %}active{% endif %}">
                 <i class="fa-solid fa-bell"></i>
@@ -93,7 +86,6 @@
                 <i class="fa-solid fa-plus"></i>
                 <span>Create Post</span>
             </button>
-            
             <div class="user-card">
                 <div class="user-avatar">{{ session.username[0].upper() }}</div>
                 <div class="user-info">
@@ -108,189 +100,105 @@
     </aside>
     {% endif %}
 
-    <!-- MAIN CONTENT -->
     <main class="main-area {% if session.get('user_id') %}logged-in{% endif %}">
-        
-        <!-- Toast Messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% for category, message in messages %}
-            <div class="toast {{ category }}" id="toast">
+            <div class="toast {{ category }}">
                 <i class="fa-solid {% if category == 'success' %}fa-check-circle{% else %}fa-exclamation-circle{% endif %}"></i>
                 <span>{{ message }}</span>
             </div>
             {% endfor %}
         {% endwith %}
-
         {% block content %}{% endblock %}
     </main>
 
-   <!-- MOBILE BOTTOM NAV -->
-{% if session.get("user_id") %}
-<nav class="mobile-nav">
-    <a href="{{ url_for('feed') }}" class="mobile-link {% if request.endpoint == 'feed' %}active{% endif %}">
-        <i class="fa-solid fa-house"></i>
-        <span>Home</span>
-    </a>
-    <a href="{{ url_for('explore') }}" class="mobile-link {% if request.endpoint == 'explore' %}active{% endif %}">
-        <i class="fa-solid fa-compass"></i>
-        <span>Explore</span>
-    </a>
-    <button class="mobile-create" onclick="openComposer()">
-        <i class="fa-solid fa-plus"></i>
-    </button>
-    <a href="{{ url_for('ai') }}" class="mobile-link {% if request.endpoint == 'ai' %}active{% endif %}">
-        <i class="fa-solid fa-sparkles"></i>
-        <span>AI</span>
-    </a>
-    <a href="{{ url_for('profile', username=session.username) }}" class="mobile-link {% if request.endpoint == 'profile' %}active{% endif %}" id="mobileProfileBtn">
-        <i class="fa-solid fa-user"></i>
-        <span>Profile</span>
-    </a>
-</nav>
+    {% if session.get("user_id") %}
+    <nav class="mobile-nav">
+        <a href="{{ url_for('feed') }}" class="mobile-link {% if request.endpoint == 'feed' %}active{% endif %}">
+            <i class="fa-solid fa-house"></i>
+            <span>Home</span>
+        </a>
+        <a href="{{ url_for('explore') }}" class="mobile-link {% if request.endpoint == 'explore' %}active{% endif %}">
+            <i class="fa-solid fa-compass"></i>
+            <span>Explore</span>
+        </a>
+        <button class="mobile-create" onclick="openComposer()">
+            <i class="fa-solid fa-plus"></i>
+        </button>
+        <a href="{{ url_for('ai') }}" class="mobile-link {% if request.endpoint == 'ai' %}active{% endif %}">
+            <i class="fa-solid fa-robot"></i>
+            <span>AI</span>
+        </a>
+        <a href="{{ url_for('profile', username=session.username) }}" class="mobile-link {% if request.endpoint == 'profile' %}active{% endif %}" id="mobileProfileBtn">
+            <i class="fa-solid fa-user"></i>
+            <span>Profile</span>
+        </a>
+    </nav>
 
-<!-- MOBILE MORE MENU -->
-<div class="mobile-more-overlay" id="mobileMoreMenu" onclick="closeMobileMore(event)">
-    <div class="mobile-more-sheet" onclick="event.stopPropagation()">
-        <div class="mobile-more-handle"></div>
-        <div class="mobile-more-items">
-            <a href="{{ url_for('feed') }}" class="mobile-more-item">
-                <i class="fa-solid fa-house"></i>
-                <span>Home</span>
-            </a>
-            <a href="{{ url_for('ai') }}" class="mobile-more-item">
-                <i class="fa-solid fa-sparkles"></i>
-                <span>AI Assistant</span>
-            </a>
-            <a href="{{ url_for('explore') }}" class="mobile-more-item">
-                <i class="fa-solid fa-compass"></i>
-                <span>Explore</span>
-            </a>
-            <a href="{{ url_for('reels') }}" class="mobile-more-item">
-                <i class="fa-solid fa-film"></i>
-                <span>Reels</span>
-            </a>
-            <a href="{{ url_for('notifications') }}" class="mobile-more-item">
-                <i class="fa-solid fa-bell"></i>
-                <span>Notifications</span>
-            </a>
-            <a href="{{ url_for('messages') }}" class="mobile-more-item">
-                <i class="fa-solid fa-envelope"></i>
-                <span>Messages</span>
-            </a>
-            <a href="{{ url_for('profile', username=session.username) }}" class="mobile-more-item">
-                <i class="fa-solid fa-user"></i>
-                <span>Profile</span>
-            </a>
-            <a href="{{ url_for('settings') }}" class="mobile-more-item">
-                <i class="fa-solid fa-gear"></i>
-                <span>Settings</span>
-            </a>
-            <a href="{{ url_for('logout') }}" class="mobile-more-item logout">
-                <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                <span>Log Out</span>
-            </a>
+    <div class="mobile-more-overlay" id="mobileMoreMenu" onclick="closeMobileMore(event)">
+        <div class="mobile-more-sheet" onclick="event.stopPropagation()">
+            <div class="mobile-more-handle"></div>
+            <div class="mobile-more-items">
+                <a href="{{ url_for('feed') }}" class="mobile-more-item"><i class="fa-solid fa-house"></i><span>Home</span></a>
+                <a href="{{ url_for('ai') }}" class="mobile-more-item"><i class="fa-solid fa-robot"></i><span>AI Assistant</span></a>
+                <a href="{{ url_for('explore') }}" class="mobile-more-item"><i class="fa-solid fa-compass"></i><span>Explore</span></a>
+                <a href="{{ url_for('reels') }}" class="mobile-more-item"><i class="fa-solid fa-film"></i><span>Reels</span></a>
+                <a href="{{ url_for('notifications') }}" class="mobile-more-item"><i class="fa-solid fa-bell"></i><span>Notifications</span></a>
+                <a href="{{ url_for('messages') }}" class="mobile-more-item"><i class="fa-solid fa-envelope"></i><span>Messages</span></a>
+                <a href="{{ url_for('profile', username=session.username) }}" class="mobile-more-item"><i class="fa-solid fa-user"></i><span>Profile</span></a>
+                <a href="{{ url_for('settings') }}" class="mobile-more-item"><i class="fa-solid fa-gear"></i><span>Settings</span></a>
+                <a href="{{ url_for('logout') }}" class="mobile-more-item logout"><i class="fa-solid fa-arrow-right-from-bracket"></i><span>Log Out</span></a>
+            </div>
         </div>
     </div>
-</div>
-{% endif %}
+    {% endif %}
 
-       <!-- GLOBAL SCRIPTS -->
     <script>
-    // Auto-hide toast after 4 seconds
     document.querySelectorAll('.toast').forEach(function(toast) {
-        setTimeout(function() {
-            toast.style.opacity = '0';
-            setTimeout(function() {
-                toast.remove();
-            }, 300);
-        }, 4000);
+        setTimeout(function() { toast.style.opacity = '0'; setTimeout(function() { toast.remove(); }, 300); }, 4000);
     });
 
-    // Mobile Profile - Long press to open more menu
-var mobileProfileBtn = document.getElementById('mobileProfileBtn');
-if (mobileProfileBtn) {
-    var pressTimer;
-    
-    mobileProfileBtn.addEventListener('long-press', function() {
-        openMobileMore();
-    });
-    
-    // Double tap for more menu
-    var lastTap = 0;
-    mobileProfileBtn.addEventListener('touchend', function(e) {
-        var currentTime = new Date().getTime();
-        var tapLength = currentTime - lastTap;
-        if (tapLength < 300 && tapLength > 0) {
-            e.preventDefault();
-            openMobileMore();
-        }
-        lastTap = currentTime;
-    });
-}
+    var mobileProfileBtn = document.getElementById('mobileProfileBtn');
+    if (mobileProfileBtn) {
+        var lastTap = 0;
+        mobileProfileBtn.addEventListener('touchend', function(e) {
+            var currentTime = new Date().getTime();
+            var tapLength = currentTime - lastTap;
+            if (tapLength < 300 && tapLength > 0) { e.preventDefault(); openMobileMore(); }
+            lastTap = currentTime;
+        });
+    }
 
-function openMobileMore() {
-    document.getElementById('mobileMoreMenu').classList.add('active');
-    document.body.style.overflow = 'hidden';
-}
+    function openMobileMore() { document.getElementById('mobileMoreMenu').classList.add('active'); document.body.style.overflow = 'hidden'; }
+    function closeMobileMore(e) { if (e && e.target !== e.currentTarget) return; document.getElementById('mobileMoreMenu').classList.remove('active'); document.body.style.overflow = ''; }
 
-function closeMobileMore(e) {
-    if (e && e.target !== e.currentTarget) return;
-    document.getElementById('mobileMoreMenu').classList.remove('active');
-    document.body.style.overflow = '';
-}
+    var moreSheet = document.querySelector('.mobile-more-sheet');
+    if (moreSheet) {
+        var startY = 0;
+        moreSheet.addEventListener('touchstart', function(e) { startY = e.touches[0].clientY; });
+        moreSheet.addEventListener('touchmove', function(e) { if (e.touches[0].clientY - startY > 100) { closeMobileMore(); } });
+    }
 
-// Swipe down to close
-var moreSheet = document.querySelector('.mobile-more-sheet');
-if (moreSheet) {
-    var startY = 0;
-    
-    moreSheet.addEventListener('touchstart', function(e) {
-        startY = e.touches[0].clientY;
-    });
-    
-    moreSheet.addEventListener('touchmove', function(e) {
-        var currentY = e.touches[0].clientY;
-        if (currentY - startY > 100) {
-            closeMobileMore();
-        }
-    });
-}
-
-    // Fetch notification count
-    async function updateNotifCount() {
-        try {
-            const res = await fetch('/api/notifications/count');
-            const data = await res.json();
-            const badge = document.getElementById('notifBadge');
-            if (badge && data.count > 0) {
-                badge.textContent = data.count;
-                badge.style.display = 'inline';
+    function updateNotifCount() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/api/notifications/count', true);
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                var data = JSON.parse(xhr.responseText);
+                var badge = document.getElementById('notifBadge');
+                if (badge && data.count > 0) { badge.textContent = data.count; badge.style.display = 'inline'; }
             }
-        } catch(e) {
-            console.log('Could not fetch notifications');
-        }
+        };
+        xhr.send();
     }
 
-    // Check if user is logged in using a data attribute instead of Jinja
-    if (document.body.getAttribute('data-logged-in') === 'true') {
-        updateNotifCount();
-        setInterval(updateNotifCount, 30000);
-    }
+    if (document.body.getAttribute('data-logged-in') === 'true') { updateNotifCount(); setInterval(updateNotifCount, 30000); }
 
-    // Global composer function
     function openComposer() {
         var modal = document.getElementById('composerModal');
-        if (modal) {
-            modal.classList.add('active');
-            var textArea = document.getElementById('composerText');
-            if (textArea) {
-                textArea.focus();
-            }
-        } else {
-            window.location.href = '/feed';
-        }
+        if (modal) { modal.classList.add('active'); var t = document.getElementById('composerText'); if (t) t.focus(); }
+        else { window.location.href = '/feed'; }
     }
     </script>
-
 </body>
 </html>
