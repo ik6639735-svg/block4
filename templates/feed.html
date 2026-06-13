@@ -493,9 +493,11 @@ function removeMedia() {
 
 function submitPost() {
     var text = document.getElementById('composerText').value.trim();
+    var visibility = document.getElementById('postVisibility').value;
     if (!text && !selectedMedia) { alert('Please write something or add media'); return; }
     var fd = new FormData();
     fd.append('content', text);
+    fd.append('visibility', visibility);
     if (selectedMedia) fd.append('media', selectedMedia);
     var xhr = new XMLHttpRequest();
     xhr.open('POST', '/api/post', true);

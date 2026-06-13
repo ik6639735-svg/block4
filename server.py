@@ -100,13 +100,14 @@ def init_db():
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )''')
     
-    conn.execute('''CREATE TABLE IF NOT EXISTS posts (
+       conn.execute('''CREATE TABLE IF NOT EXISTS posts (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER NOT NULL,
         content TEXT,
         media_url TEXT,
         media_type TEXT,
         feeling TEXT,
+        visibility TEXT DEFAULT 'Public',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users (id)
     )''')
@@ -475,6 +476,7 @@ def feed():
 def create_post():
     content = request.form.get('content', '').strip()
     feeling = request.form.get('feeling', '')
+    visibility = request.form.get('visibility', 'Public')
     media_url = None
     media_type = None
     if 'media' in request.files:
@@ -489,8 +491,8 @@ def create_post():
     if not content and not media_url:
         return jsonify({'error': 'Post cannot be empty'}), 400
     db = get_db()
-    cursor = db.execute('INSERT INTO posts (user_id, content, media_url, media_type, feeling) VALUES (?, ?, ?, ?, ?)',
-                       (session['user_id'], content, media_url, media_type, feeling))
+    cursor = db.execute('INSERT INTO posts (user_id, content, media_url, media_type, feeling, visibility) VALUES (?, ?, ?, ?, ?, ?)',
+                       (session['user_id'], content, media_url, media_type, feeling, visibility))
     post_id = cursor.lastrowid
     db.commit()
     return jsonify({'status': 'ok', 'post_id': post_id})
