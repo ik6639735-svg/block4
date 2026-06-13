@@ -204,6 +204,22 @@ def init_db():
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )''')
     
+        conn.execute('''CREATE TABLE IF NOT EXISTS story_likes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        story_id INTEGER NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(user_id, story_id)
+    )''')
+    
+    conn.execute('''CREATE TABLE IF NOT EXISTS story_comments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        story_id INTEGER NOT NULL,
+        content TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )''')
+
     conn.commit()
     conn.close()
 
@@ -589,6 +605,19 @@ def get_user_stories(user_id):
         ORDER BY s.created_at ASC
     ''', (user_id,)).fetchall()
     return jsonify([dict(s) for s in stories])
+
+        conn.execute('''CREATE TABLE IF NOT EXISTS stories (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        media_url TEXT NOT NULL,
+        media_type TEXT DEFAULT 'image',
+        caption TEXT DEFAULT '',
+        music TEXT DEFAULT '',
+        comments_enabled INTEGER DEFAULT 1,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        expires_at TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users (id)
+    )''')
 
 
 # ================================

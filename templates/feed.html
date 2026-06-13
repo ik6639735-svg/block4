@@ -360,19 +360,55 @@
     </div>
 </div>
 
-<!-- STORY VIEWER -->
-<div class="modal-overlay" id="storyModal" onclick="closeStoryModal()">
-    <div class="story-viewer" onclick="event.stopPropagation()">
-        <button class="close-btn" onclick="closeStoryModal()" style="position:absolute; top:10px; right:10px; z-index:10;">
+<!-- STORY VIEWER - Old (Remove this) -->
+
+<!-- STORY VIEWER - Full Screen -->
+<div class="story-viewer-full" id="storyViewer">
+    <div class="story-viewer-container">
+        <div class="story-viewer-top">
+            <div class="story-progress-bar" id="storyProgressBar"></div>
+            <div class="story-viewer-user">
+                <div class="story-viewer-avatar" id="storyViewerAvatar"></div>
+                <span class="story-viewer-username" id="storyViewerUsername"></span>
+                <span class="story-viewer-time" id="storyViewerTime"></span>
+            </div>
+        </div>
+        <button class="story-viewer-close" onclick="closeStoryViewer()">
             <i class="fa-solid fa-xmark"></i>
         </button>
-        <div id="storyContent" style="width:100%; height:100%; display:grid; place-items:center;"></div>
+        <button class="story-nav-left" onclick="prevStory()"></button>
+        <button class="story-nav-right" onclick="nextStory()"></button>
+        <div id="storyViewerMedia" style="width:100%; height:100%; display:grid; place-items:center; background:#000;"></div>
+        <div class="story-viewer-bottom">
+            <div class="story-caption" id="storyCaption"></div>
+            <div class="story-music-tag" id="storyMusic" style="display:none;">
+                <i class="fa-solid fa-music"></i>
+                <span id="storyMusicName"></span>
+            </div>
+            <div class="story-reactions">
+                <button class="story-reaction-btn" onclick="reactToStory('heart')">❤️</button>
+                <button class="story-reaction-btn" onclick="reactToStory('fire')">🔥</button>
+                <button class="story-reaction-btn" onclick="reactToStory('clap')">👏</button>
+                <button class="story-reaction-btn" onclick="reactToStory('cry')">😢</button>
+                <button class="story-reaction-btn" onclick="reactToStory('wow')">😮</button>
+                <button class="story-reaction-btn" onclick="reactToStory('laugh')">😂</button>
+            </div>
+            <div class="story-reply-section" id="storyReplySection">
+                <input type="text" class="story-reply-input" id="storyReplyInput" placeholder="Reply to story..." onkeypress="if(event.key === 'Enter') sendStoryReply()">
+                <button class="story-like-btn" id="storyLikeBtn" onclick="toggleStoryLike()">
+                    <i class="fa-regular fa-heart"></i>
+                </button>
+                <button class="story-share-btn" onclick="shareCurrentStory()">
+                    <i class="fa-regular fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
 // ================================
-// MARKET PRICES (Real Data)
+// MARKET PRICES
 // ================================
 function fetchPrices() {
     var xhr = new XMLHttpRequest();
@@ -405,7 +441,6 @@ function fetchPrices() {
     };
     xhr.send();
 }
-
 fetchPrices();
 setInterval(fetchPrices, 60000);
 
@@ -414,9 +449,7 @@ setInterval(fetchPrices, 60000);
 // ================================
 function switchFeedTab(tab, btn) {
     var tabs = document.querySelectorAll('.feed-tab');
-    for (var i = 0; i < tabs.length; i++) {
-        tabs[i].classList.remove('active');
-    }
+    for (var i = 0; i < tabs.length; i++) { tabs[i].classList.remove('active'); }
     btn.classList.add('active');
 }
 
@@ -427,9 +460,7 @@ var selectedMedia = null;
 
 function openComposer() {
     document.getElementById('composerModal').classList.add('active');
-    setTimeout(function() {
-        document.getElementById('composerText').focus();
-    }, 100);
+    setTimeout(function() { document.getElementById('composerText').focus(); }, 100);
 }
 
 function closeComposer(e) {
@@ -462,10 +493,7 @@ function removeMedia() {
 
 function submitPost() {
     var text = document.getElementById('composerText').value.trim();
-    if (!text && !selectedMedia) {
-        alert('Please write something or add media');
-        return;
-    }
+    if (!text && !selectedMedia) { alert('Please write something or add media'); return; }
     var fd = new FormData();
     fd.append('content', text);
     if (selectedMedia) fd.append('media', selectedMedia);
@@ -519,9 +547,7 @@ function toggleComments(postId) {
     if (section.style.display === 'none' || section.style.display === '') {
         section.style.display = 'block';
         loadComments(postId);
-    } else {
-        section.style.display = 'none';
-    }
+    } else { section.style.display = 'none'; }
 }
 
 function loadComments(postId) {
@@ -531,10 +557,7 @@ function loadComments(postId) {
         if (xhr.status === 200) {
             var comments = JSON.parse(xhr.responseText);
             var list = document.getElementById('comments-list-' + postId);
-            if (comments.length === 0) {
-                list.innerHTML = '<p style="color:var(--text-muted); padding:10px; font-size:13px;">No comments yet.</p>';
-                return;
-            }
+            if (comments.length === 0) { list.innerHTML = '<p style="color:var(--text-muted); padding:10px; font-size:13px;">No comments yet.</p>'; return; }
             var html = '';
             for (var i = 0; i < comments.length; i++) {
                 var c = comments[i];
@@ -553,9 +576,7 @@ function submitComment(postId) {
     var xhr = new XMLHttpRequest();
     xhr.open('POST', '/api/post/' + postId + '/comment', true);
     xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.onload = function() {
-        if (xhr.status === 200) { input.value = ''; loadComments(postId); }
-    };
+    xhr.onload = function() { if (xhr.status === 200) { input.value = ''; loadComments(postId); } };
     xhr.send(JSON.stringify({ content: content }));
 }
 
@@ -568,15 +589,8 @@ function followUser(userId, btn) {
     xhr.onload = function() {
         if (xhr.status === 200) {
             var data = JSON.parse(xhr.responseText);
-            if (data.status === 'followed') {
-                btn.textContent = 'Following';
-                btn.style.background = 'var(--gold)';
-                btn.style.color = 'black';
-            } else {
-                btn.textContent = 'Follow';
-                btn.style.background = 'transparent';
-                btn.style.color = 'var(--gold)';
-            }
+            if (data.status === 'followed') { btn.textContent = 'Following'; btn.style.background = 'var(--gold)'; btn.style.color = 'black'; }
+            else { btn.textContent = 'Follow'; btn.style.background = 'transparent'; btn.style.color = 'var(--gold)'; }
         }
     };
     xhr.send();
@@ -593,9 +607,7 @@ function addPollOption() {
     var count = container.querySelectorAll('.poll-option').length + 1;
     if (count > 6) return;
     var input = document.createElement('input');
-    input.type = 'text';
-    input.className = 'poll-option';
-    input.placeholder = 'Option ' + count;
+    input.type = 'text'; input.className = 'poll-option'; input.placeholder = 'Option ' + count;
     input.style = 'width:100%; padding:12px; background:var(--bg-elevated); border:1px solid var(--border); border-radius:var(--radius-md); color:var(--text-primary); font-size:14px; outline:none; margin-bottom:8px;';
     container.appendChild(input);
 }
@@ -604,9 +616,7 @@ function submitPoll() {
     var question = document.getElementById('pollQuestion').value.trim();
     var optionInputs = document.querySelectorAll('.poll-option');
     var options = [];
-    for (var i = 0; i < optionInputs.length; i++) {
-        if (optionInputs[i].value.trim()) options.push(optionInputs[i].value.trim());
-    }
+    for (var i = 0; i < optionInputs.length; i++) { if (optionInputs[i].value.trim()) options.push(optionInputs[i].value.trim()); }
     if (!question || options.length < 2) { alert('Need a question and at least 2 options'); return; }
     var xhr = new XMLHttpRequest();
     xhr.open('POST', '/api/poll', true);
@@ -633,6 +643,11 @@ function uploadStory(input) {
     xhr.send(fd);
 }
 
+// Story Viewer
+var currentStories = [];
+var currentStoryIndex = 0;
+var storyTimer = null;
+
 function viewStory(userId) {
     var xhr = new XMLHttpRequest();
     xhr.open('GET', '/api/stories/' + userId, true);
@@ -640,44 +655,120 @@ function viewStory(userId) {
         if (xhr.status === 200) {
             var stories = JSON.parse(xhr.responseText);
             if (stories.length === 0) return;
-            var story = stories[0];
-            var content = document.getElementById('storyContent');
-            if (story.media_type === 'video') {
-                content.innerHTML = '<video src="' + story.media_url + '" controls autoplay style="max-width:100%; max-height:80vh; border-radius:16px;"></video>';
-            } else {
-                content.innerHTML = '<img src="' + story.media_url + '" style="max-width:100%; max-height:80vh; border-radius:16px;">';
-            }
-            document.getElementById('storyModal').classList.add('active');
+            currentStories = stories;
+            currentStoryIndex = 0;
+            showStory(0);
+            document.getElementById('storyViewer').classList.add('active');
+            document.body.style.overflow = 'hidden';
         }
     };
     xhr.send();
 }
 
-function closeStoryModal() {
-    document.getElementById('storyModal').classList.remove('active');
-    document.getElementById('storyContent').innerHTML = '';
+function showStory(index) {
+    if (index < 0 || index >= currentStories.length) { closeStoryViewer(); return; }
+    currentStoryIndex = index;
+    var story = currentStories[index];
+    var media = document.getElementById('storyViewerMedia');
+    if (story.media_type === 'video') {
+        media.innerHTML = '<video src="' + story.media_url + '" autoplay playsinline style="width:100%; height:100%; object-fit:cover;"></video>';
+    } else {
+        media.innerHTML = '<img src="' + story.media_url + '" style="width:100%; height:100%; object-fit:cover;">';
+    }
+    document.getElementById('storyViewerAvatar').textContent = story.username[0].toUpperCase();
+    document.getElementById('storyViewerUsername').textContent = story.username;
+    if (story.caption) { document.getElementById('storyCaption').textContent = story.caption; document.getElementById('storyCaption').style.display = 'block'; }
+    else { document.getElementById('storyCaption').style.display = 'none'; }
+    if (story.music) { document.getElementById('storyMusic').style.display = 'flex'; document.getElementById('storyMusicName').textContent = story.music; }
+    else { document.getElementById('storyMusic').style.display = 'none'; }
+    var likeBtn = document.getElementById('storyLikeBtn');
+    if (story.user_liked) { likeBtn.innerHTML = '<i class="fa-solid fa-heart"></i>'; likeBtn.classList.add('liked'); }
+    else { likeBtn.innerHTML = '<i class="fa-regular fa-heart"></i>'; likeBtn.classList.remove('liked'); }
+    if (story.comments_enabled === 0) { document.getElementById('storyReplyInput').disabled = true; document.getElementById('storyReplyInput').placeholder = 'Comments are turned off'; }
+    else { document.getElementById('storyReplyInput').disabled = false; document.getElementById('storyReplyInput').placeholder = 'Reply to story...'; }
+    buildProgressBar();
+    startStoryTimer();
 }
+
+function buildProgressBar() {
+    var bar = document.getElementById('storyProgressBar');
+    var html = '';
+    for (var i = 0; i < currentStories.length; i++) {
+        var cls = '';
+        if (i < currentStoryIndex) cls = 'done';
+        else if (i === currentStoryIndex) cls = 'active';
+        html += '<div class="story-progress-segment"><div class="story-progress-fill ' + cls + '"></div></div>';
+    }
+    bar.innerHTML = html;
+}
+
+function startStoryTimer() { clearTimeout(storyTimer); storyTimer = setTimeout(function() { nextStory(); }, 5000); }
+function nextStory() { clearTimeout(storyTimer); if (currentStoryIndex < currentStories.length - 1) { showStory(currentStoryIndex + 1); } else { closeStoryViewer(); } }
+function prevStory() { clearTimeout(storyTimer); if (currentStoryIndex > 0) { showStory(currentStoryIndex - 1); } }
+
+function closeStoryViewer() {
+    clearTimeout(storyTimer);
+    document.getElementById('storyViewer').classList.remove('active');
+    document.getElementById('storyViewerMedia').innerHTML = '';
+    document.body.style.overflow = '';
+    currentStories = [];
+}
+
+function toggleStoryLike() {
+    if (!currentStories[currentStoryIndex]) return;
+    var storyId = currentStories[currentStoryIndex].id;
+    var btn = document.getElementById('storyLikeBtn');
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/story/' + storyId + '/like', true);
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            var data = JSON.parse(xhr.responseText);
+            if (data.status === 'liked') { btn.innerHTML = '<i class="fa-solid fa-heart"></i>'; btn.classList.add('liked'); }
+            else { btn.innerHTML = '<i class="fa-regular fa-heart"></i>'; btn.classList.remove('liked'); }
+        }
+    };
+    xhr.send();
+}
+
+function sendStoryReply() {
+    if (!currentStories[currentStoryIndex]) return;
+    var storyId = currentStories[currentStoryIndex].id;
+    var input = document.getElementById('storyReplyInput');
+    var content = input.value.trim();
+    if (!content) return;
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/story/' + storyId + '/comment', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onload = function() { if (xhr.status === 200) { input.value = ''; } };
+    xhr.send(JSON.stringify({ content: content }));
+}
+
+function reactToStory(reaction) {
+    if (!currentStories[currentStoryIndex]) return;
+    var storyId = currentStories[currentStoryIndex].id;
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/story/' + storyId + '/comment', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(JSON.stringify({ content: reaction }));
+}
+
+function shareCurrentStory() { alert('Share feature coming soon!'); }
+function closeStoryModal() { closeStoryViewer(); }
 
 // ================================
 // SHARE & SAVE
 // ================================
 function sharePost(postId) {
     var url = window.location.origin + '/feed#post-' + postId;
-    if (navigator.clipboard) {
-        navigator.clipboard.writeText(url).then(function() { alert('Link copied!'); });
-    } else { prompt('Copy this link:', url); }
+    if (navigator.clipboard) { navigator.clipboard.writeText(url).then(function() { alert('Link copied!'); }); }
+    else { prompt('Copy this link:', url); }
 }
 
 function savePost(postId, btn) {
     var icon = btn.querySelector('i');
     btn.classList.toggle('saved');
-    if (btn.classList.contains('saved')) {
-        icon.className = 'fa-solid fa-bookmark';
-        icon.style.color = 'var(--gold)';
-    } else {
-        icon.className = 'fa-regular fa-bookmark';
-        icon.style.color = '';
-    }
+    if (btn.classList.contains('saved')) { icon.className = 'fa-solid fa-bookmark'; icon.style.color = 'var(--gold)'; }
+    else { icon.className = 'fa-regular fa-bookmark'; icon.style.color = ''; }
 }
 
 function togglePostMenu(postId) { console.log('Menu for post:', postId); }
