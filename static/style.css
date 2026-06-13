@@ -4653,3 +4653,511 @@ body::before {
     background: var(--border);
     margin: 8px 16px;
 }
+/* ============================================
+   MOBILE VIEW - Instagram Style
+============================================= */
+@media (max-width: 900px) {
+    .sidebar {
+        display: none;
+    }
+    
+    .main-area.logged-in {
+        margin-left: 0;
+        padding: 0;
+        padding-bottom: 70px;
+    }
+    
+    /* Mobile Header */
+    .mobile-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 16px;
+        position: sticky;
+        top: 0;
+        background: var(--bg-primary);
+        z-index: 50;
+        border-bottom: 1px solid var(--border);
+    }
+    
+    .mobile-header-logo {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .mobile-header-logo svg {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .mobile-header-title {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 22px;
+        font-weight: 700;
+    }
+    
+    .mobile-header-title span {
+        color: var(--gold);
+    }
+    
+    .mobile-header-actions {
+        display: flex;
+        gap: 16px;
+    }
+    
+    .mobile-header-btn {
+        background: none;
+        border: none;
+        color: var(--text-primary);
+        font-size: 22px;
+        cursor: pointer;
+        padding: 4px;
+        position: relative;
+    }
+    
+    .mobile-header-btn .notif-dot {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 8px;
+        height: 8px;
+        background: var(--red);
+        border-radius: 50%;
+    }
+    
+    /* Mobile Bottom Nav */
+    .mobile-nav {
+        display: flex;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 50px;
+        background: var(--bg-primary);
+        border-top: 1px solid var(--border);
+        justify-content: space-around;
+        align-items: center;
+        padding: 0;
+        z-index: 1000;
+    }
+    
+    .mobile-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-muted);
+        font-size: 24px;
+        padding: 8px 16px;
+        text-decoration: none;
+    }
+    
+    .mobile-link.active {
+        color: var(--text-primary);
+    }
+    
+    .mobile-link span {
+        display: none;
+    }
+    
+    .mobile-create {
+        width: 28px;
+        height: 28px;
+        background: none;
+        border: 2px solid var(--text-primary);
+        border-radius: 8px;
+        display: grid;
+        place-items: center;
+        font-size: 16px;
+        color: var(--text-primary);
+        cursor: pointer;
+        box-shadow: none;
+        transform: none;
+    }
+    
+    /* Feed Layout Mobile */
+    .feed-layout {
+        grid-template-columns: 1fr;
+        gap: 0;
+        max-width: 100%;
+    }
+    
+    .feed-sidebar {
+        display: none;
+    }
+    
+    .feed-main {
+        gap: 0;
+    }
+    
+    /* Create Card Mobile */
+    .create-card {
+        display: none;
+    }
+    
+    /* Feed Tabs Mobile */
+    .feed-tabs {
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+        margin-bottom: 0;
+    }
+    
+    /* Stories Mobile - Instagram Style */
+    .stories-row {
+        padding: 10px 16px;
+        gap: 16px;
+        border-bottom: 1px solid var(--border);
+        margin: 0;
+    }
+    
+    .story-card {
+        width: 66px;
+        height: 90px;
+        border-radius: 50%;
+        border: none;
+        background: none;
+        overflow: visible;
+    }
+    
+    .story-card img,
+    .story-card video {
+        width: 62px;
+        height: 62px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid transparent;
+        background: linear-gradient(var(--bg-primary), var(--bg-primary)) padding-box,
+                    linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888) border-box;
+    }
+    
+    .story-card span {
+        position: relative;
+        bottom: auto;
+        left: auto;
+        right: auto;
+        display: block;
+        text-align: center;
+        font-size: 11px;
+        color: var(--text-primary);
+        margin-top: 4px;
+        text-shadow: none;
+        font-weight: 400;
+    }
+    
+    .story-card.create-story {
+        border: none;
+        background: none;
+        gap: 0;
+        justify-content: flex-start;
+        align-items: center;
+    }
+    
+    .story-card.create-story .story-add {
+        width: 62px;
+        height: 62px;
+        border-radius: 50%;
+        font-size: 12px;
+        position: relative;
+    }
+    
+    .story-card.create-story .story-add {
+        background: var(--bg-elevated);
+        border: 2px solid var(--border);
+        color: var(--text-primary);
+    }
+    
+    .story-card.create-story .story-add::after {
+        content: '+';
+        position: absolute;
+        bottom: -2px;
+        right: -2px;
+        width: 20px;
+        height: 20px;
+        background: var(--gold);
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        font-size: 14px;
+        font-weight: 700;
+        color: black;
+        border: 2px solid var(--bg-primary);
+    }
+    
+    .story-card.create-story .story-add i {
+        display: none;
+    }
+    
+    /* Post Card Mobile */
+    .post-card {
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        box-shadow: none;
+        margin-bottom: 0;
+    }
+    
+    .post-card:hover {
+        box-shadow: none;
+    }
+    
+    .post-header {
+        padding: 10px 16px;
+    }
+    
+    .post-content {
+        padding: 0 16px 10px;
+    }
+    
+    .post-media {
+        border-radius: 0;
+        margin-top: 0;
+    }
+    
+    .post-image {
+        border-radius: 0;
+        max-height: none;
+        width: 100%;
+    }
+    
+    .post-video {
+        border-radius: 0;
+        max-height: none;
+        width: 100%;
+    }
+    
+    .post-footer {
+        padding: 8px 16px;
+        border-top: none;
+    }
+    
+    .post-actions {
+        margin-bottom: 4px;
+    }
+    
+    .action-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 22px;
+    }
+    
+    .post-stats {
+        font-size: 14px;
+        font-weight: 600;
+    }
+    
+    /* Author Avatar Mobile */
+    .author-avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 13px;
+    }
+    
+    .author-info strong {
+        font-size: 13px;
+    }
+    
+    .author-info span {
+        display: none;
+    }
+    
+    /* Empty State Mobile */
+    .empty-state {
+        padding: 40px 20px;
+    }
+    
+    /* Comments Mobile */
+    .comments-section {
+        padding: 10px 16px;
+    }
+    
+    /* Auth Pages Mobile */
+    .auth-page {
+        grid-template-columns: 1fr;
+    }
+    
+    .auth-visual,
+    .auth-visual-animated {
+        display: none;
+    }
+    
+    .auth-container {
+        padding: 30px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+    }
+    
+    /* Other Pages Mobile */
+    .ai-page,
+    .messages-page,
+    .notifications-page,
+    .explore-page,
+    .reels-page,
+    .hashtag-page,
+    .legal-page,
+    .chat-page,
+    .settings-page,
+    .profile-page {
+        padding: 0 16px;
+    }
+    
+    .ai-container {
+        height: calc(100vh - 120px);
+    }
+    
+    /* Settings Mobile */
+    .settings-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .settings-nav {
+        flex-direction: row;
+        overflow-x: auto;
+        position: static;
+        padding: 8px;
+    }
+    
+    .settings-nav-item {
+        flex-shrink: 0;
+        padding: 10px 14px;
+    }
+    
+    .settings-nav-item span {
+        display: none;
+    }
+    
+    .settings-section {
+        padding: 20px;
+    }
+    
+    /* Profile Mobile */
+    .profile-info-section {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 0 20px 20px;
+    }
+    
+    .profile-details {
+        padding-top: 16px;
+    }
+    
+    .profile-name-row {
+        justify-content: center;
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .profile-stats {
+        justify-content: center;
+    }
+    
+    .profile-actions {
+        justify-content: center;
+    }
+    
+    /* Explore Mobile */
+    .explore-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2px;
+        border-radius: 0;
+    }
+    
+    .trending-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    /* Reels Mobile */
+    .reels-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2px;
+    }
+    
+    /* Mobile More Menu */
+    .mobile-more-overlay.active {
+        display: flex;
+        align-items: flex-end;
+    }
+    
+    .mobile-more-sheet {
+        max-height: 85vh;
+        background: var(--bg-card);
+        border-top: 1px solid var(--border);
+        border-radius: 16px 16px 0 0;
+        padding: 8px 0 20px;
+    }
+    
+    .mobile-more-handle {
+        width: 36px;
+        height: 4px;
+        background: var(--border-light);
+        border-radius: 2px;
+        margin: 8px auto 16px;
+    }
+    
+    .mobile-more-item {
+        padding: 14px 20px;
+        font-size: 15px;
+    }
+    
+    .mobile-more-item i {
+        font-size: 22px;
+        width: 28px;
+    }
+}
+
+@media (max-width: 600px) {
+    .stories-row {
+        gap: 12px;
+        padding: 10px 12px;
+    }
+    
+    .story-card {
+        width: 60px;
+    }
+    
+    .story-card img,
+    .story-card video {
+        width: 56px;
+        height: 56px;
+    }
+    
+    .action-item span {
+        display: none;
+    }
+    
+    .ai-tools-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .prompt-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .social-animated {
+        flex-direction: column;
+    }
+    
+    .trending-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .reels-grid {
+        grid-template-columns: 1fr;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+    
+    .avatar-upload-section {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .media-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2px;
+    }
+}
