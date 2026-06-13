@@ -204,7 +204,7 @@ def init_db():
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )''')
     
-        conn.execute('''CREATE TABLE IF NOT EXISTS story_likes (
+     conn.execute('''CREATE TABLE IF NOT EXISTS story_likes (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER NOT NULL,
         story_id INTEGER NOT NULL,
@@ -587,9 +587,12 @@ def create_story():
         media_url = "/static/uploads/stories/" + filename
         ext = filename.rsplit('.', 1)[1].lower()
         media_type = 'video' if ext in ['mp4', 'mov', 'webm'] else 'image'
+        caption = request.form.get('caption', '')
+        music = request.form.get('music', '')
+        comments_enabled = request.form.get('comments_enabled', '1')
         db = get_db()
-        db.execute("INSERT INTO stories (user_id, media_url, media_type, expires_at) VALUES (?, ?, ?, datetime('now', '+24 hours'))",
-                  (session['user_id'], media_url, media_type))
+        db.execute("INSERT INTO stories (user_id, media_url, media_type, caption, music, comments_enabled, expires_at) VALUES (?, ?, ?, ?, ?, ?, datetime('now', '+24 hours'))",
+                  (session['user_id'], media_url, media_type, caption, music, comments_enabled))
         db.commit()
         return jsonify({'status': 'ok'})
     return jsonify({'error': 'Invalid file'}), 400
@@ -599,26 +602,65 @@ def create_story():
 def get_user_stories(user_id):
     db = get_db()
     stories = db.execute('''
-        SELECT s.*, u.username FROM stories s
-        JOIN users u ON s.user_id = u.id
+        SELECT s.*, u.username, u.avatar,
+            (SELECT COUNT(*) FROM story_likes WHERE story_id = s.id) as like_count,
+            (SELECT COUNT(*) FROM story_likes WHERE story_id = s.id AND user_id = ?) as user_liked,
+            (SELECT COUNT(*) FROM story_comments WHERE story_id = s.id) as comment_count
+        FROM stories s JOIN users u ON s.user_id = u.id
         WHERE s.user_id = ? AND s.created_at > datetime('now', '-24 hours')
         ORDER BY s.created_at ASC
-    ''', (user_id,)).fetchall()
+    ''', (session['user_id'], user_id)).fetchall()
     return jsonify([dict(s) for s in stories])
 
-        conn.execute('''CREATE TABLE IF NOT EXISTS stories (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER NOT NULL,
-        media_url TEXT NOT NULL,
-        media_type TEXT DEFAULT 'image',
-        caption TEXT DEFAULT '',
-        music TEXT DEFAULT '',
-        comments_enabled INTEGER DEFAULT 1,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        expires_at TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES users (id)
-    )''')
+@app.route("/api/story/<int:story_id>/like", methods=["POST"])
+@login_required
+def like_story(story_id):
+    db = get_db()
+    existing = db.execute("SELECT id FROM story_likes WHERE user_id = ? AND story_id = ?",
+                         (session['user_id'], story_id)).fetchone()
+    if existing:
+        db.execute("DELETE FROM story_likes WHERE user_id = ? AND story_id = ?", (session['user_id'], story_id))
+        action = 'unliked'
+    else:
+        db.execute("INSERT INTO story_likes (user_id, story_id) VALUES (?, ?)", (session['user_id'], story_id))
+        action = 'liked'
+        story = db.execute("SELECT user_id FROM stories WHERE id = ?", (story_id,)).fetchone()
+        if story and story['user_id'] != session['user_id']:
+            create_notification(story['user_id'], 'like', session['user_id'], content='liked your story')
+    count = db.execute("SELECT COUNT(*) as c FROM story_likes WHERE story_id = ?", (story_id,)).fetchone()['c']
+    db.commit()
+    return jsonify({'status': action, 'count': count})
 
+@app.route("/api/story/<int:story_id>/comment", methods=["POST"])
+@login_required
+def comment_story(story_id):
+    data = request.get_json()
+    content = data.get('content', '').strip()
+    if not content:
+        return jsonify({'error': 'Comment cannot be empty'}), 400
+    db = get_db()
+    story = db.execute("SELECT * FROM stories WHERE id = ?", (story_id,)).fetchone()
+    if not story:
+        return jsonify({'error': 'Story not found'}), 404
+    db.execute("INSERT INTO story_comments (user_id, story_id, content) VALUES (?, ?, ?)",
+              (session['user_id'], story_id, content))
+    if story['user_id'] != session['user_id']:
+        create_notification(story['user_id'], 'comment', session['user_id'], content='replied to your story')
+    db.commit()
+    return jsonify({'status': 'ok', 'username': session['username'], 'content': content})
+
+@app.route("/api/story/<int:story_id>/comments")
+@login_required
+def get_story_comments(story_id):
+    db = get_db()
+    comments = db.execute('''
+        SELECT sc.*, u.username, u.avatar FROM story_comments sc
+        JOIN users u ON sc.user_id = u.id WHERE sc.story_id = ?
+        ORDER BY sc.created_at DESC LIMIT 50
+    ''', (story_id,)).fetchall()
+    return jsonify([dict(c) for c in comments])
+
+      
 
 # ================================
 # FOLLOW ROUTES
