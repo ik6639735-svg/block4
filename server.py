@@ -100,7 +100,7 @@ def init_db():
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )''')
     
-       conn.execute('''CREATE TABLE IF NOT EXISTS posts (
+           conn.execute('''CREATE TABLE IF NOT EXISTS posts (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER NOT NULL,
         content TEXT,
@@ -205,7 +205,7 @@ def init_db():
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )''')
     
-     conn.execute('''CREATE TABLE IF NOT EXISTS story_likes (
+         conn.execute('''CREATE TABLE IF NOT EXISTS story_likes (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER NOT NULL,
         story_id INTEGER NOT NULL,
