@@ -226,13 +226,20 @@ def init_db():
 
 init_db()
 
-try:
-    conn = sqlite3.connect(DB_PATH)
-    conn.execute("ALTER TABLE users ADD COLUMN is_verified INTEGER DEFAULT 0")
-    conn.commit()
-    conn.close()
-except:
-    pass
+# Safe column migrations - each wrapped so it won't crash if column already exists
+def safe_migrate(sql):
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        conn.execute(sql)
+        conn.commit()
+        conn.close()
+    except:
+        pass
+
+safe_migrate("ALTER TABLE users ADD COLUMN is_verified INTEGER DEFAULT 0")
+safe_migrate("ALTER TABLE stories ADD COLUMN caption TEXT DEFAULT ''")
+safe_migrate("ALTER TABLE stories ADD COLUMN music TEXT DEFAULT ''")
+safe_migrate("ALTER TABLE stories ADD COLUMN comments_enabled INTEGER DEFAULT 1")
 
 
 # ================================
